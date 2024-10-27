@@ -201,4 +201,4 @@ def main():
         st.write("먼저 CSV 파일을 업로드하세요.")
 
 if __name__ == "__main__":
-    maint()
+    main()
