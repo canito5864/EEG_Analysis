@@ -134,7 +134,7 @@ def main():
             ax.legend()
             st.pyplot(fig, figsize(300, 50)
     
-        if analysis_type == 'Electrode Comparison':
+        elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
     
             # 두 전극 선택
@@ -169,7 +169,7 @@ def main():
             ax.legend()
             st.pyplot(fig, figsize(300, 50)
     
-        if analysis_type == 'Topomap Visualization':
+        elif analysis_type == 'Topomap Visualization':
             st.subheader('뇌파 활동 시각화 (Topomap)')
     
             # 특정 시간 선택 (슬라이더를 사용하여 연속적으로 시간 조절)
