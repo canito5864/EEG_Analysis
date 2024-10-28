@@ -35,7 +35,7 @@ def main():
         fig, ax = plt.subplots()
         mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0)
         ax.set_title(title)
-        st.pyplot(fig, figsize(300, 50))
+        st.pyplot(fig)
     
     # Streamlit app
     st.title('EEG 뇌파 분석')
@@ -132,7 +132,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
-            st.pyplot(fig, figsize(300, 50)
+            st.pyplot(fig, figsize(1800, 100))
     
         elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
@@ -156,7 +156,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
-            st.pyplot(fig, figsize(300, 50)
+            st.pyplot(fig, figsize(1800, 100))
     
             # 전극 간 차이 계산
             difference = calculate_difference(processed_data1, processed_data2)
@@ -167,7 +167,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude Difference')
             ax.legend()
-            st.pyplot(fig, figsize(300, 50)
+            st.pyplot(fig, figsize(1800, 100))
     
         elif analysis_type == 'Topomap Visualization':
             st.subheader('뇌파 활동 시각화 (Topomap)')
