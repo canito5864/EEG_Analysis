@@ -127,8 +127,8 @@ def main():
     
             # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
-            fig, ax = plt.subplots()
             plt.figure(figsize=(1800, 100))
+            fig, ax = plt.subplots()
             ax.plot(time[:len(processed_data)], processed_data, label=f'{electrode} - 필터링된 신호')
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
@@ -151,8 +151,8 @@ def main():
     
             # 두 신호를 같은 그래프에 시각화
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
-            fig, ax = plt.subplots()
             plt.figure(figsize=(1800, 100))
+            fig, ax = plt.subplots()
             ax.plot(time[:len(processed_data1)], processed_data1, label=f'{electrode1} - 필터링된 신호')
             ax.plot(time[:len(processed_data2)], processed_data2, label=f'{electrode2} - 필터링된 신호')
             ax.set_xlabel('Time (s)')
@@ -164,8 +164,8 @@ def main():
             difference = calculate_difference(processed_data1, processed_data2)
     
             st.subheader(f'{electrode1}과 {electrode2}의 EEG 신호 차이')
-            fig, ax = plt.subplots()
             plt.figure(figsize=(1800, 100))
+            fig, ax = plt.subplots()
             ax.plot(time[:len(difference)], difference, label='Difference')
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude Difference')
