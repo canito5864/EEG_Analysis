@@ -110,8 +110,8 @@ def main():
                     st.write(f'{electrode_key}: {lowcut}-{highcut} Hz {band} 버터워스 필터링 적용됨.')
                     filtered_signals.append(filtered_signal)
     
-                # 여러 주파수 대역의 결과를 평균 내어 반환
-                data = np.mean(filtered_signals, axis=0)
+                # 여러 주파수 대역의 결과를 합하여 반환
+                data = np.sum(filtered_signals, axis=0)
     
             return data
     
