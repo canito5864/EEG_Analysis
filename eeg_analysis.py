@@ -115,7 +115,7 @@ def main():
     
             return data
 
-        num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=1, max_value=100, value=1)
+        num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=0, max_value=100, value=1)
         time_ranges = []
 
         for i in range(num_ranges):
@@ -154,6 +154,18 @@ def main():
             ax.set_ylabel('Amplitude')
             ax.legend()
             st.pyplot(fig)
+
+            for idx, (start_time, end_time) in enumerate(time_ranges):
+                start_idx = int(start_time / sampling_interval)
+                end_idx = int(end_time / sampling_interval)
+                
+                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                fig, ax = plt.subplots()
+                ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호')
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
     
         elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
@@ -181,6 +193,19 @@ def main():
             ax.set_ylabel('Amplitude')
             ax.legend()
             st.pyplot(fig)
+
+            for idx, (start_time, end_time) in enumerate(time_ranges):
+                start_idx = int(start_time / sampling_interval)
+                end_idx = int(end_time / sampling_interval)
+                
+                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                fig, ax = plt.subplots()
+                ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호')
+                ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호')
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
     
             # 전극 간 차이 계산
             difference = calculate_difference(processed_data1, processed_data2)
@@ -195,6 +220,18 @@ def main():
             ax.set_ylabel('Amplitude Difference')
             ax.legend()
             st.pyplot(fig)
+
+            for idx, (start_time, end_time) in enumerate(time_ranges):
+                    start_idx = int(start_time / sampling_interval)
+                    end_idx = int(end_time / sampling_interval)
+                    
+                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                    fig, ax = plt.subplots()
+                    ax.plot(time[start_idx:end_idx], difference[start_idx:end_idx], label=f'Difference')
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
     
         elif analysis_type == 'Topomap Visualization':
             st.subheader('뇌파 활동 시각화 (Topomap)')
