@@ -149,7 +149,7 @@ def main():
             fig, ax = plt.subplots()
             ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호')
             for start_time, end_time in time_ranges:
-                ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3, label=f'구간 {start_time}-{end_time}')
+                ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
@@ -175,6 +175,8 @@ def main():
             fig, ax = plt.subplots()
             ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호')
             ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호')
+            for start_time, end_time in time_ranges:
+                ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
@@ -187,6 +189,8 @@ def main():
             plt.figure(figsize=(1800, 100))
             fig, ax = plt.subplots()
             ax.plot(time, difference[:len(time)], label='Difference')
+            for start_time, end_time in time_ranges:
+                ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude Difference')
             ax.legend()
