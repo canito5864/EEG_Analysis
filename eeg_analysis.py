@@ -45,7 +45,7 @@ def main():
     
     if uploaded_file is not None:
         # CSV 파일 읽기
-        raw_eeg = pd.read_csv(uploaded_file)
+        raw_eeg = pd.read_csv(uploaded_file, skiprows=[0])
     
         # 'eeg.'로 시작하는 특정 전극만 필터링
         eeg_columns = ['EEG.AF3', 'EEG.AF4', 'EEG.T7', 'EEG.T8', 'EEG.Pz']
