@@ -115,18 +115,23 @@ def main():
     
             return data
 
-        num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=1, max_value=10, value=1)
+        num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=1, max_value=100, value=1)
         time_ranges = []
 
         for i in range(num_ranges):
-            start_time, end_time = st.slider(
-                f"구간 {i+1} 시작 및 종료 시간 선택", 
-                min_value=0.0, 
-                max_value=float(len(time) * sampling_interval), 
-                value=(0.0, float(len(time) * sampling_interval)),
-                step=sampling_interval
-            )
-            time_ranges.append((start_time, end_time))
+            start_time = st.text_input(f"구간 {i+1} 시작 시간 (초)", "0.0")
+            end_time = st.text_input(f"구간 {i+1} 종료 시간 (초)", str(len(time) * sampling_interval))
+            
+            # 입력받은 값을 float으로 변환하여 구간 리스트에 추가
+            try:
+                start_time = float(start_time)
+                end_time = float(end_time)
+                if 0 <= start_time < end_time <= len(time) * sampling_interval:
+                    time_ranges.append((start_time, end_time))
+                else:
+                    st.warning(f"구간 {i+1}: 유효한 시간을 입력하세요.")
+            except ValueError:
+                st.warning(f"구간 {i+1}: 올바른 숫자 형식으로 시간을 입력하세요.")
     
         if analysis_type == 'Single Electrode':
             st.subheader('단일 전극 분석')
