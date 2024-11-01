@@ -147,7 +147,7 @@ def main():
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
             plt.figure(figsize=(100, 10))
             fig, ax = plt.subplots()
-            ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호')
+            ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
@@ -185,8 +185,8 @@ def main():
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
             plt.figure(figsize=(100, 10))
             fig, ax = plt.subplots()
-            ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호')
-            ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호')
+            ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+            ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
@@ -213,7 +213,7 @@ def main():
             st.subheader(f'{electrode1}과 {electrode2}의 EEG 신호 차이')
             plt.figure(figsize=(100, 10))
             fig, ax = plt.subplots()
-            ax.plot(time, difference[:len(time)], label='Difference')
+            ax.plot(time, difference[:len(time)], label='Difference', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
