@@ -145,7 +145,7 @@ def main():
     
             # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
-            plt.figure(figsize=(100, 10))
+            plt.figure(figsize=(100, 5))
             fig, ax = plt.subplots()
             ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
             for start_time, end_time in time_ranges:
