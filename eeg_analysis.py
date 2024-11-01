@@ -48,16 +48,16 @@ def main():
         raw_eeg = pd.read_csv(uploaded_file)
     
         # 'eeg.'로 시작하는 특정 전극만 필터링
-        eeg_columns = ['eeg.af3', 'eeg.af4', 'eeg.t7', 'eeg.t8', 'eeg.pz']
+        eeg_columns = ['EEG.AF3', 'EEG.AF4', 'EEG.T7', 'EEG.T8', 'EEG.Pz']
         raw_eeg = raw_eeg[eeg_columns]
     
         # 전극 이름 매핑 (MNE 표준 채널 이름으로)
         mapping = {
-            'eeg.af3': 'AF3',
-            'eeg.af4': 'AF4',
-            'eeg.t7': 'T7',
-            'eeg.t8': 'T8',
-            'eeg.pz': 'Pz'
+            'EEG.AF3': 'AF3',
+            'EEG.AF4': 'AF4',
+            'EEG.T7': 'T7',
+            'EEG.T8': 'T8',
+            'EEG.Pz': 'Pz'
         }
     
         # 전극 이름을 MNE 표준 전극 이름으로 매핑
