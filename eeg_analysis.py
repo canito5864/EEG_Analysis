@@ -114,6 +114,19 @@ def main():
                 data = np.sum(filtered_signals, axis=0)
     
             return data
+
+        num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=1, max_value=10, value=1)
+        time_ranges = []
+
+        for i in range(num_ranges):
+            start_time, end_time = st.slider(
+                f"구간 {i+1} 시작 및 종료 시간 선택", 
+                min_value=0.0, 
+                max_value=float(len(time) * sampling_interval), 
+                value=(0.0, float(len(time) * sampling_interval)),
+                step=sampling_interval
+            )
+            time_ranges.append((start_time, end_time))
     
         if analysis_type == 'Single Electrode':
             st.subheader('단일 전극 분석')
@@ -130,6 +143,8 @@ def main():
             plt.figure(figsize=(1800, 100))
             fig, ax = plt.subplots()
             ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호')
+            for start_time, end_time in time_ranges:
+                ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3, label=f'구간 {start_time}-{end_time}')
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
