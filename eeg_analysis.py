@@ -146,7 +146,10 @@ def main():
             # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
             fig, ax = plt.subplots()
-            ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
+            if len(time)<len(processed_data):
+                ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
+            else:
+                ax.plot(time[:len(processed_data)], processed_data, label=f'{electrode} - 필터링된 신호', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
@@ -184,8 +187,14 @@ def main():
             # 두 신호를 같은 그래프에 시각화
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
             fig, ax = plt.subplots()
-            ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
-            ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
+            if len(time)<len(processed_data1):
+                ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+            else:
+                ax.plot(time[:len(processed_data1)], processed_data1, label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+            if len(time)<len(processed_data2):
+                ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
+            else:
+                ax.plot(time[:len(processed_data2)], processed_data2, label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
@@ -212,7 +221,10 @@ def main():
     
             st.subheader(f'{electrode1}과 {electrode2}의 EEG 신호 차이')
             fig, ax = plt.subplots()
-            ax.plot(time, difference[:len(time)], label='Difference', linewidth=0.5)
+            if len(time)<len(difference):
+                ax.plot(time, difference[:len(time)], label=f'Difference', linewidth=0.5)
+            else:
+                ax.plot(time[:len(difference)], difference, label=f'Difference', linewidth=0.5)
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
