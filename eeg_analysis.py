@@ -152,6 +152,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
+            plt.figure(figsize=(100,10))
             st.pyplot(fig)
 
             for idx, (start_time, end_time) in enumerate(time_ranges):
@@ -160,7 +161,7 @@ def main():
                 
                 st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                 fig, ax = plt.subplots()
-                ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호')
+                ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
@@ -190,6 +191,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
             ax.legend()
+            plt.figure(figsize=(100,10))
             st.pyplot(fig)
 
             for idx, (start_time, end_time) in enumerate(time_ranges):
@@ -198,8 +200,8 @@ def main():
                 
                 st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                 fig, ax = plt.subplots()
-                ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호')
-                ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호')
+                ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
@@ -216,6 +218,7 @@ def main():
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude Difference')
             ax.legend()
+            plt.figure(figsize=(100,10))
             st.pyplot(fig)
 
             for idx, (start_time, end_time) in enumerate(time_ranges):
@@ -224,7 +227,7 @@ def main():
                     
                     st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                     fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], difference[start_idx:end_idx], label=f'Difference')
+                    ax.plot(time[start_idx:end_idx], difference[start_idx:end_idx], label=f'Difference', linewidth=0.5)
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
                     ax.legend()
