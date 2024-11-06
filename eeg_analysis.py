@@ -64,7 +64,7 @@ def main():
         raw_eeg = raw_eeg.rename(columns=mapping)
     
         # 타임 시리즈 생성
-        sampling_interval = 0.007  # 예시로 0.007초 샘플링 간격을 사용
+        sampling_interval = 0.00780995  # 예시로 0.007초 샘플링 간격을 사용
         fs = 1 / sampling_interval
         time = np.arange(0, len(raw_eeg) * sampling_interval, sampling_interval)
     
