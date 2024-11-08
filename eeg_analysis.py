@@ -183,8 +183,8 @@ def main():
                 end_idx = int(end_time / sampling_interval)
 
                 if apply_pca:
-                st.subheader("PCA 적용")
-                # 사용자가 입력한 구간 적용
+                    st.subheader("PCA 적용")
+                    # 사용자가 입력한 구간 적용
                     for idx, (start_time, end_time) in enumerate(time_ranges):
                         st.subheader(f"구간 {idx+1}: {start_time}초 ~ {end_time}초")
                         # PCA 적용
@@ -245,8 +245,8 @@ def main():
                 end_idx = int(end_time / sampling_interval)
 
                 if apply_pca:
-                st.subheader("PCA 적용")
-                # 사용자가 입력한 구간 적용
+                    st.subheader("PCA 적용")
+                    # 사용자가 입력한 구간 적용
                     for idx, (start_time, end_time) in enumerate(time_ranges):
                         st.subheader(f"구간 {idx+1}: {start_time}초 ~ {end_time}초")
                         # PCA 적용
