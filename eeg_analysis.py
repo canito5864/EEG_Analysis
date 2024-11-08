@@ -264,14 +264,14 @@ def main():
 
                 else:"""
                         
-                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
-                    fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
-                    ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
-                    ax.legend()
-                    st.pyplot(fig)
+                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                fig, ax = plt.subplots()
+                ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
     
             # 전극 간 차이 계산
             difference = calculate_difference(processed_data1, processed_data2)
