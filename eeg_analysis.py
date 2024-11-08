@@ -29,7 +29,7 @@ def main():
     def fourier_transform(data):
         return np.abs(fft(data))
 
-    def apply_pca_to_range(data, time, start_time, end_time, n_components=0.95):
+    """def apply_pca_to_range(data, time, start_time, end_time, n_components=0.95):
         # 특정 시간 구간에 해당하는 인덱스 계산
         start_idx = np.searchsorted(time, start_time)
         end_idx = np.searchsorted(time, end_time)
@@ -42,7 +42,7 @@ def main():
         modified_data = data.copy()
         modified_data[start_idx:end_idx] = pca_transformed
         
-        return modified_data, pca_transformed
+        return modified_data, pca_transformed"""
     
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
@@ -182,7 +182,7 @@ def main():
                 start_idx = int(start_time / sampling_interval)
                 end_idx = int(end_time / sampling_interval)
 
-                if apply_pca:
+                """if apply_pca:
                     st.subheader("PCA 적용")
                     # 사용자가 입력한 구간 적용
                     for idx, (start_time, end_time) in enumerate(time_ranges):
@@ -198,15 +198,15 @@ def main():
                         ax.legend()
                         st.pyplot(fig)
                         
-                else:
-                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
-                    fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
-                    ax.legend()
-                    st.pyplot(fig)
-    
+                else:"""
+                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                fig, ax = plt.subplots()
+                ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
+
         elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
     
@@ -244,7 +244,7 @@ def main():
                 start_idx = int(start_time / sampling_interval)
                 end_idx = int(end_time / sampling_interval)
 
-                if apply_pca:
+                """if apply_pca:
                     st.subheader("PCA 적용")
                     # 사용자가 입력한 구간 적용
                     for idx, (start_time, end_time) in enumerate(time_ranges):
@@ -262,16 +262,16 @@ def main():
                         ax.legend()
                         st.pyplot(fig)
 
-                else:
+                else:"""
                         
-                        st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
-                        fig, ax = plt.subplots()
-                        ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
-                        ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
-                        ax.set_xlabel('Time (s)')
-                        ax.set_ylabel('Amplitude')
-                        ax.legend()
-                        st.pyplot(fig)
+                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                    fig, ax = plt.subplots()
+                    ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                    ax.plot(time[start_idx:end_idx], processed_data2[start_idx:end_idx], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
     
             # 전극 간 차이 계산
             difference = calculate_difference(processed_data1, processed_data2)
