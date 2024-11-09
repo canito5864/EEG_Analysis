@@ -295,7 +295,7 @@ def main():
                 selected_data = processed_eeg[selected_electrodes]
                 
                 # PCA 적용
-                pca = PCA(n_components=min(len(selected_electrodes), 5))
+                pca = PCA(n_components=min(len(selected_electrodes), len(selected_electrodes)))
                 transformed_data = pca.fit_transform(selected_data.values)
     
                 
