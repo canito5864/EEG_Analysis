@@ -336,14 +336,16 @@ def main():
                 ax.set_ylabel('Amplitude')
                 ax.legend()
                 st.pyplot(fig)
-            
+
                 for idx, (start_time, end_time) in enumerate(time_ranges):
                     start_idx = int(start_time / sampling_interval)
                     end_idx = int(end_time / sampling_interval)
-    
-                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                    
+                    adjusted_time = time[:len(transformed_data)]
+                    
                     fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                    ax.plot(adjusted_time[start_idx:end_idx], transformed_data[start_idx:end_idx, selected_idx], 
+                            label=f'PCA Component {selected_idx + 1}', linewidth=0.5)
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
                     ax.legend()
