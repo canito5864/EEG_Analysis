@@ -322,7 +322,12 @@ def main():
                 
                 # 기여도 그래프
                 st.bar_chart(loadings_df.set_index('전극'))
-                
+
+                if len(time) > len(transformed_data):
+                    time = time[:len(transformed_data)]
+                elif len(time) < len(transformed_data):
+                    transformed_data = transformed_data[:len(time), :]
+
                 # 첫 번째 주요 성분 시각화
                 st.write(f"{selected_pc} 시각화:")
                 fig, ax = plt.subplots()
@@ -338,7 +343,7 @@ def main():
     
                     st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                     fig, ax = plt.subplots()
-                    ax.plot(time[:len(transformed_data)][start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                    ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
                     ax.legend()
