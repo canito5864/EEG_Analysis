@@ -338,7 +338,7 @@ def main():
     
                     st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                     fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                    ax.plot(time[:len(transformed_data)][start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
                     ax.legend()
