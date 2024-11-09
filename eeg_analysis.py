@@ -285,64 +285,64 @@ def main():
                 processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
     
             # PCA를 적용할 전극 선택
-        selected_electrodes = st.multiselect(
-            'PCA를 적용할 전극을 선택하세요:',
-            options=processed_eeg.columns.tolist(),
-            default=processed_eeg.columns.tolist()
-        )
-
-        if selected_electrodes:
-            selected_data = processed_eeg[selected_electrodes]
-            
-            # PCA 적용
-            pca = PCA(n_components=min(len(selected_electrodes), 5))
-            transformed_data = pca.fit_transform(selected_data.values)
-
-            
-            st.write("PCA 주요 성분 설명:")
-            st.write(pd.DataFrame({
-                '성분': [f'PC{i+1}' for i in range(pca.n_components_)],
-                '분산 기여도': pca.explained_variance_ratio_
-            }))
-            
-            # 성분 선택
-            selected_pc = st.selectbox(
-                '기여도를 확인할 주요 성분을 선택하세요',
-                [f'PC{i+1}' for i in range(pca.n_components_)]
+            selected_electrodes = st.multiselect(
+                'PCA를 적용할 전극을 선택하세요:',
+                options=processed_eeg.columns.tolist(),
+                default=processed_eeg.columns.tolist()
             )
-            selected_idx = int(selected_pc.replace('PC', '')) - 1
-            
-            st.write(f"{selected_pc}의 전극 기여도:")
-            loadings = pca.components_[selected_idx]
-            loadings_df = pd.DataFrame({
-                '전극': selected_electrodes,
-                '기여도': loadings
-            }).sort_values(by='기여도', ascending=False)
-            st.write(loadings_df)
-            
-            # 기여도 그래프
-            st.bar_chart(loadings_df.set_index('전극'))
-            
-            # 첫 번째 주요 성분 시각화
-            st.write(f"{selected_pc} 시각화:")
-            fig, ax = plt.subplots()
-            ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=f'{selected_pc}', color='blue')
-            ax.set_xlabel('Time (s)')
-            ax.set_ylabel('Amplitude')
-            ax.legend()
-            st.pyplot(fig)
-            
-            for idx, (start_time, end_time) in enumerate(time_ranges):
-                start_idx = int(start_time / sampling_interval)
-                end_idx = int(end_time / sampling_interval)
 
-                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+            if selected_electrodes:
+                selected_data = processed_eeg[selected_electrodes]
+                
+                # PCA 적용
+                pca = PCA(n_components=min(len(selected_electrodes), 5))
+                transformed_data = pca.fit_transform(selected_data.values)
+    
+                
+                st.write("PCA 주요 성분 설명:")
+                st.write(pd.DataFrame({
+                    '성분': [f'PC{i+1}' for i in range(pca.n_components_)],
+                    '분산 기여도': pca.explained_variance_ratio_
+                }))
+                
+                # 성분 선택
+                selected_pc = st.selectbox(
+                    '기여도를 확인할 주요 성분을 선택하세요',
+                    [f'PC{i+1}' for i in range(pca.n_components_)]
+                )
+                selected_idx = int(selected_pc.replace('PC', '')) - 1
+                
+                st.write(f"{selected_pc}의 전극 기여도:")
+                loadings = pca.components_[selected_idx]
+                loadings_df = pd.DataFrame({
+                    '전극': selected_electrodes,
+                    '기여도': loadings
+                }).sort_values(by='기여도', ascending=False)
+                st.write(loadings_df)
+                
+                # 기여도 그래프
+                st.bar_chart(loadings_df.set_index('전극'))
+                
+                # 첫 번째 주요 성분 시각화
+                st.write(f"{selected_pc} 시각화:")
                 fig, ax = plt.subplots()
-                ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=f'{selected_pc}', color='blue')
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
                 st.pyplot(fig)
+            
+                for idx, (start_time, end_time) in enumerate(time_ranges):
+                    start_idx = int(start_time / sampling_interval)
+                    end_idx = int(end_time / sampling_interval)
+    
+                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                    fig, ax = plt.subplots()
+                    ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
             
         else:
             st.warning("적어도 하나의 전극을 선택하세요.")
