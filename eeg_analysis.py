@@ -8,6 +8,21 @@ import matplotlib.pyplot as plt
 import mne
 from sklearn.decomposition import PCA
 
+ """def apply_pca_to_range(data, time, start_time, end_time, n_components=0.95):
+        # 특정 시간 구간에 해당하는 인덱스 계산
+        start_idx = np.searchsorted(time, start_time)
+        end_idx = np.searchsorted(time, end_time)
+        
+        # PCA 적용
+        pca = PCA(n_components=n_components)
+        pca_transformed = pca.fit_transform(data[start_idx:end_idx])
+        
+        # 원본 데이터를 복제하고 특정 구간에 PCA 결과를 대체
+        modified_data = data.copy()
+        modified_data[start_idx:end_idx] = pca_transformed
+        
+        return modified_data, pca_transformed"""
+
 # Helper functions for signal processing
 def main():
     def butter_bandpass(lowcut, highcut, fs, order=4):
@@ -28,21 +43,6 @@ def main():
     
     def fourier_transform(data):
         return np.abs(fft(data))
-
-    """def apply_pca_to_range(data, time, start_time, end_time, n_components=0.95):
-        # 특정 시간 구간에 해당하는 인덱스 계산
-        start_idx = np.searchsorted(time, start_time)
-        end_idx = np.searchsorted(time, end_time)
-        
-        # PCA 적용
-        pca = PCA(n_components=n_components)
-        pca_transformed = pca.fit_transform(data[start_idx:end_idx])
-        
-        # 원본 데이터를 복제하고 특정 구간에 PCA 결과를 대체
-        modified_data = data.copy()
-        modified_data[start_idx:end_idx] = pca_transformed
-        
-        return modified_data, pca_transformed"""
     
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
