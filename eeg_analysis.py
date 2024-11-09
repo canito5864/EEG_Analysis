@@ -356,7 +356,7 @@ def main():
                         
                         st.write(f"전극 {electrode}와 PCA 비교:")
                         fig, ax = plt.subplots()
-                        ax.plot(adjusted_time[start_idx:end_idx], original_signal[start_idx:end_idx] - adjusted_time[start_idx:end_idx], transformed_data[start_idx:end_idx, selected_idx], label=f'Difference ({electrode})', color='red')
+                        ax.plot(adjusted_time[start_idx:end_idx], original_signal[start_idx:end_idx] - adjusted_time[start_idx:end_idx], transformed_data[start_idx:end_idx, selected_idx], color='red')
                         ax.set_xlabel('Time (s)')
                         ax.set_ylabel('Amplitude')
                         ax.legend()
