@@ -350,23 +350,18 @@ def main():
                     ax.set_ylabel('Amplitude')
                     ax.legend()
                     st.pyplot(fig)
-
-                    pca.inverse_transform(transformed_data)
                     
                     for electrode in selected_electrodes:
                         original_signal = selected_data[electrode].values
-                        reconstructed_signal = reconstructed_data[:, selected_data.columns.get_loc(electrode)]
-                        difference = original_signal - reconstructed_signal
                         
                         st.write(f"전극 {electrode}와 PCA 비교:")
                         fig, ax = plt.subplots()
-                        ax.plot(time, original_signal, label=f'Original Signal ({electrode})', color='green')
-                        ax.plot(time, reconstructed_signal, label=f'Reconstructed Signal ({electrode})', color='orange')
-                        ax.plot(time, difference, label=f'Difference ({electrode})', color='red')
+                        ax.plot(adjusted_time[start_idx:end_idx], original_signal[start_idx:end_idx] - adjusted_time[start_idx:end_idx], transformed_data[start_idx:end_idx, selected_idx], label=f'Difference ({electrode})', color='red')
                         ax.set_xlabel('Time (s)')
                         ax.set_ylabel('Amplitude')
                         ax.legend()
                         st.pyplot(fig)
+                        
         else:
             st.warning("적어도 하나의 전극을 선택하세요.")
             
