@@ -94,7 +94,7 @@ def main():
         preprocessing = st.multiselect(
             '적용할 전처리 방법을 선택하세요',
             ['None', 'Wavelet Transform', 'Fourier Transform', 'Butterworth Filter'],
-            default=['None']
+            default=['Butterworth Filter']
         )
     
         def apply_preprocessing(data, electrode_key):
@@ -272,6 +272,14 @@ def main():
             else:
                 # 각 전극에서의 신호 세기 추출
                 activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
+
+                if apply_pca:
+                    # PCA 적용
+                    st.write("PCA를 적용하여 신호 분석을 진행합니다.")
+                    pca = PCA(n_components=1)
+                    transformed_data = pca.fit_transform(raw_eeg[valid_electrodes].values)
+                    pca_component = transformed_data[selected_idx]
+                    activity_levels = pca_component * np.ones(len(valid_electrodes))
     
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
