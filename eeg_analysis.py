@@ -297,6 +297,7 @@ def main():
             # PCA 적용
             pca = PCA(n_components=min(len(selected_electrodes), 5))
             transformed_data = pca.fit_transform(selected_data.values)
+
             
             st.write("PCA 주요 성분 설명:")
             st.write(pd.DataFrame({
@@ -330,6 +331,18 @@ def main():
             ax.set_ylabel('Amplitude')
             ax.legend()
             st.pyplot(fig)
+            
+            for idx, (start_time, end_time) in enumerate(time_ranges):
+                start_idx = int(start_time / sampling_interval)
+                end_idx = int(end_time / sampling_interval)
+
+                st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
+                fig, ax = plt.subplots()
+                ax.plot(time[start_idx:end_idx], transformed_data[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
             
         else:
             st.warning("적어도 하나의 전극을 선택하세요.")
