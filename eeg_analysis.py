@@ -287,39 +287,40 @@ def main():
             # PCA 적용 (모든 전극 데이터를 사용하여 주성분 추출)
             pca = PCA(n_components=min(len(processed_eeg.columns), 5))  # 주요 성분 5개까지 추출
             transformed_data = pca.fit_transform(processed_eeg.values)
+
     
-            st.write("PCA 주요 성분 설명:")
+            st.write("PCA 설명:")
             st.write(pd.DataFrame({
                 '성분': [f'PC{i+1}' for i in range(pca.n_components_)],
-                '설명된 분산 비율': pca.explained_variance_ratio_
+                '분산': pca.explained_variance_ratio_
             }))
-
+            
+            # 성분 선택
+            selected_pc = st.selectbox(
+                '기여도를 확인할 주요 성분을 선택하세요',
+                [f'PC{i+1}' for i in range(pca.n_components_)]
+            )
+            selected_idx = int(selected_pc.replace('PC', '')) - 1
+            
+            st.write(f"{selected_pc}의 전극 기여도:")
+            loadings = pca.components_[selected_idx]
+            loadings_df = pd.DataFrame({
+                '전극': processed_eeg.columns,
+                '기여도': loadings
+            }).sort_values(by='기여도', ascending=False)
+            st.write(loadings_df)
+    
+            # 기여도 그래프
+            st.bar_chart(loadings_df.set_index('전극'))
+            
             # 첫 번째 주요 성분 시각화
-            st.write("첫 번째 주요 성분 시각화:")
+            st.write(f"{selected_pc} 시각화:")
             fig, ax = plt.subplots()
-            ax.plot(time[:len(transformed_data)], transformed_data[:, 0], label='PCA Component 1', color='blue')
+            ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=f'{selected_pc}', color='blue')
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Amplitude')
-            ax.set_title('Overall EEG Trend (PCA Component 1)')
             ax.legend()
             st.pyplot(fig)
-
-            # 추가 성분 시각화 선택
-            if pca.n_components_ > 1:
-                additional_component = st.selectbox(
-                    '추가로 시각화할 성분을 선택하세요:',
-                    [f'PC{i+1}' for i in range(1, pca.n_components_)]
-                )
-                selected_idx = int(additional_component.replace('PC', '')) - 1
-                
-                st.write(f"{additional_component} 시각화:")
-                fig, ax = plt.subplots()
-                ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=f'{additional_component}', color='green')
-                ax.set_xlabel('Time (s)')
-                ax.set_ylabel('Amplitude')
-                ax.set_title(f'{additional_component} Trend')
-                ax.legend()
-                st.pyplot(fig)
             
     else:
         st.write("먼저 CSV 파일을 업로드하세요.")
