@@ -282,7 +282,7 @@ def main():
             # 전처리 적용
             processed_eeg = raw_eeg.copy()
             for col in raw_eeg.columns:
-                processed_eeg[eeg_columns] = apply_preprocessing(raw_eeg[eeg_columns])
+                processed_eeg[mapping] = apply_preprocessing(raw_eeg[mapping])
     
             # PCA 적용
             pca = PCA(n_components=1)
