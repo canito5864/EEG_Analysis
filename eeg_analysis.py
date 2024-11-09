@@ -73,11 +73,9 @@ def main():
         analysis_type = st.selectbox('분석할 옵션을 선택하세요', (
             'Single Electrode',
             'Electrode Comparison',
-            'Topomap Visualization'
+            'Topomap Visualization',
+            'PCA'
         ))
-
-        # Streamlit GUI
-        apply_pca = st.checkbox('PCA 적용 여부', value=False)
 
     
         # 주파수 대역 선택 (여러 개 선택 가능)
@@ -272,20 +270,33 @@ def main():
             else:
                 # 각 전극에서의 신호 세기 추출
                 activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
-
-                if apply_pca:
-                    # PCA 적용
-                    st.write("PCA를 적용하여 신호 분석을 진행합니다.")
-                    pca = PCA(n_components=1)
-                    transformed_data = pca.fit_transform(raw_eeg[valid_electrodes].values)
-                    pca_component = transformed_data[selected_idx]
-                    activity_levels = pca_component * np.ones(len(valid_electrodes))
     
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
     
                 # Topomap 시각화 (XYZ에서 XY 좌표로 변환)
                 plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
+
+        elif analysis_type == 'PCA':
+            st.subheader('PCA')
+            # 전처리 적용
+            processed_eeg = raw_eeg.copy()
+            for col in raw_eeg.columns:
+                processed_eeg[col] = apply_preprocessing(raw_eeg[col])
+    
+            # PCA 적용
+            pca = PCA(n_components=1)
+            transformed_data = pca.fit_transform(processed_eeg.values)
+    
+            st.write("PCA 분석 결과 (주요 성분):")
+            fig, ax = plt.subplots()
+            ax.plot(time[:len(transformed_data)], transformed_data, label='PCA Component 1', color='blue')
+            ax.set_xlabel('Time (s)')
+            ax.set_ylabel('Amplitude')
+            ax.set_title('Overall EEG Trend (PCA)')
+            ax.legend()
+            st.pyplot(fig)
+            
     else:
         st.write("먼저 CSV 파일을 업로드하세요.")
 
