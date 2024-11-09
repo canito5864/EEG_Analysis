@@ -284,15 +284,24 @@ def main():
             for col in raw_eeg.columns:
                 processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
     
-            # PCA 적용 (모든 전극 데이터를 사용하여 주성분 추출)
-            pca = PCA(n_components=min(len(processed_eeg.columns), 5))  # 주요 성분 5개까지 추출
-            transformed_data = pca.fit_transform(processed_eeg.values)
+            # PCA를 적용할 전극 선택
+        selected_electrodes = st.multiselect(
+            'PCA를 적용할 전극을 선택하세요:',
+            options=processed_eeg.columns.tolist(),
+            default=processed_eeg.columns.tolist()
+        )
 
-    
-            st.write("PCA 설명:")
+        if selected_electrodes:
+            selected_data = processed_eeg[selected_electrodes]
+            
+            # PCA 적용
+            pca = PCA(n_components=min(len(selected_electrodes), 5))
+            transformed_data = pca.fit_transform(selected_data.values)
+            
+            st.write("PCA 주요 성분 설명:")
             st.write(pd.DataFrame({
                 '성분': [f'PC{i+1}' for i in range(pca.n_components_)],
-                '분산': pca.explained_variance_ratio_
+                '분산 기여도': pca.explained_variance_ratio_
             }))
             
             # 성분 선택
@@ -305,11 +314,11 @@ def main():
             st.write(f"{selected_pc}의 전극 기여도:")
             loadings = pca.components_[selected_idx]
             loadings_df = pd.DataFrame({
-                '전극': processed_eeg.columns,
+                '전극': selected_electrodes,
                 '기여도': loadings
             }).sort_values(by='기여도', ascending=False)
             st.write(loadings_df)
-    
+            
             # 기여도 그래프
             st.bar_chart(loadings_df.set_index('전극'))
             
@@ -321,6 +330,9 @@ def main():
             ax.set_ylabel('Amplitude')
             ax.legend()
             st.pyplot(fig)
+            
+        else:
+            st.warning("적어도 하나의 전극을 선택하세요.")
             
     else:
         st.write("먼저 CSV 파일을 업로드하세요.")
