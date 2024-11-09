@@ -8,21 +8,6 @@ import matplotlib.pyplot as plt
 import mne
 from sklearn.decomposition import PCA
 
- """def apply_pca_to_range(data, time, start_time, end_time, n_components=0.95):
-        # 특정 시간 구간에 해당하는 인덱스 계산
-        start_idx = np.searchsorted(time, start_time)
-        end_idx = np.searchsorted(time, end_time)
-        
-        # PCA 적용
-        pca = PCA(n_components=n_components)
-        pca_transformed = pca.fit_transform(data[start_idx:end_idx])
-        
-        # 원본 데이터를 복제하고 특정 구간에 PCA 결과를 대체
-        modified_data = data.copy()
-        modified_data[start_idx:end_idx] = pca_transformed
-        
-        return modified_data, pca_transformed"""
-
 # Helper functions for signal processing
 def main():
     def butter_bandpass(lowcut, highcut, fs, order=4):
@@ -182,23 +167,6 @@ def main():
                 start_idx = int(start_time / sampling_interval)
                 end_idx = int(end_time / sampling_interval)
 
-                """if apply_pca:
-                    st.subheader("PCA 적용")
-                    # 사용자가 입력한 구간 적용
-                    for idx, (start_time, end_time) in enumerate(time_ranges):
-                        st.subheader(f"구간 {idx+1}: {start_time}초 ~ {end_time}초")
-                        # PCA 적용
-                        pca_data, _ = apply_pca_to_range(processed_data, time, start_time, end_time)
-                        
-                        # PCA 결과 시각화
-                        fig, ax = plt.subplots()
-                        ax.plot(time[start_idx:end_idx], pca_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
-                        ax.set_xlabel('Time (s)')
-                        ax.set_ylabel('Amplitude')
-                        ax.legend()
-                        st.pyplot(fig)
-                        
-                else:"""
                 st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                 fig, ax = plt.subplots()
                 ax.plot(time[start_idx:end_idx], processed_data[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
@@ -244,26 +212,6 @@ def main():
                 start_idx = int(start_time / sampling_interval)
                 end_idx = int(end_time / sampling_interval)
 
-                """if apply_pca:
-                    st.subheader("PCA 적용")
-                    # 사용자가 입력한 구간 적용
-                    for idx, (start_time, end_time) in enumerate(time_ranges):
-                        st.subheader(f"구간 {idx+1}: {start_time}초 ~ {end_time}초")
-                        # PCA 적용
-                        pca_data1, _ = apply_pca_to_range(processed_data1, time, start_time, end_time)
-                        pca_data2, _ = apply_pca_to_range(processed_data2, time, start_time, end_time)
-                        
-                        # PCA 결과 시각화
-                        fig, ax = plt.subplots()
-                        ax.plot(time[start_idx:end_idx], pca_data1[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
-                        ax.plot(time[start_idx:end_idx], pca_data2[start_idx:end_idx], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
-                        ax.set_xlabel('Time (s)')
-                        ax.set_ylabel('Amplitude')
-                        ax.legend()
-                        st.pyplot(fig)
-
-                else:"""
-                        
                 st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
                 fig, ax = plt.subplots()
                 ax.plot(time[start_idx:end_idx], processed_data1[start_idx:end_idx], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
