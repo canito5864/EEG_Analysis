@@ -33,10 +33,10 @@ def main():
         return np.abs(signal1 - signal2)
     
     def plot_topomap(data, pos, title='EEG Topomap', vmin=None, vmax=None):
-    fig, ax = plt.subplots()
-    mne.viz.plot_topomap(data, pos, axes=ax, show=False, contours=0, vmin=vmin, vmax=vmax)
-    ax.set_title(title)
-    st.pyplot(fig)
+        fig, ax = plt.subplots()
+        mne.viz.plot_topomap(data, pos, axes=ax, show=False, contours=0, vmin=vmin, vmax=vmax)
+        ax.set_title(title)
+        st.pyplot(fig)
     
     # Streamlit app
     st.title('EEG 뇌파 분석')
