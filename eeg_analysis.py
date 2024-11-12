@@ -280,7 +280,7 @@ def main():
                 vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
                 vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
                 
-                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', vmin=vmin, vmax=vmax)
+                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', vmin, vmax)
 
 
         elif analysis_type == 'PCA':
