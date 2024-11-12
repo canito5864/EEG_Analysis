@@ -273,9 +273,12 @@ def main():
     
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
-    
-                # Topomap 시각화 (XYZ에서 XY 좌표로 변환)
-                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
+
+                vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
+                vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
+                
+                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', vmin=vmin, vmax=vmax)
+
 
         elif analysis_type == 'PCA':
             st.subheader('PCA')
