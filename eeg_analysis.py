@@ -268,17 +268,24 @@ def main():
             if len(valid_electrodes) == 0:
                 st.error("유효한 전극 이름이 없습니다. 데이터와 채널 이름을 확인하세요.")
             else:
-                # 각 전극에서의 신호 세기 추출
-                activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
-    
+                activity_levels = []
+                for electrode in valid_electrodes:
+                    raw_data = raw_eeg[electrode].values
+        
+                    # 선택한 시간의 데이터만 전처리
+                    processed_data = apply_preprocessing(raw_data, electrode)
+                    activity_levels.append(processed_data[selected_idx])
+        
+                activity_levels = np.array(activity_levels)
+        
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
                 
-                global_min = raw_eeg.min().min()  # 전체 데이터의 최소값
-                global_max = raw_eeg.max().max()  # 전체 데이터의 최대값
+                #global_min = processed.min()  # 전체 데이터의 최소값
+                #global_max = raw_eeg.max()  # 전체 데이터의 최대값
 
-                vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
-                vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
+                #vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
+                #vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
                 
                 plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
 
