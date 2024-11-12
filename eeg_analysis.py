@@ -281,8 +281,8 @@ def main():
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
                 
-                global_min = processed.min().min()  # 전체 데이터의 최소값
-                global_max = raw_eeg.max().max()  # 전체 데이터의 최대값
+                global_min = activity_levels.min().min()  # 전체 데이터의 최소값
+                global_max = activity_levels.max().max()  # 전체 데이터의 최대값
 
                 vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
                 vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
