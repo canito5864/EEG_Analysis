@@ -32,11 +32,11 @@ def main():
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
     
-    def plot_topomap(data, pos, title='EEG Topomap'):
-        fig, ax = plt.subplots()
-        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0)
-        ax.set_title(title)
-        st.pyplot(fig)
+    def plot_topomap(data, pos, title='EEG Topomap', vmin=None, vmax=None):
+    fig, ax = plt.subplots()
+    mne.viz.plot_topomap(data, pos, axes=ax, show=False, contours=0, vmin=vmin, vmax=vmax)
+    ax.set_title(title)
+    st.pyplot(fig)
     
     # Streamlit app
     st.title('EEG 뇌파 분석')
@@ -281,13 +281,13 @@ def main():
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
                 
-                #global_min = processed.min()  # 전체 데이터의 최소값
-                #global_max = raw_eeg.max()  # 전체 데이터의 최대값
+                global_min = processed.min().min()  # 전체 데이터의 최소값
+                global_max = raw_eeg.max().max()  # 전체 데이터의 최대값
 
-                #vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
-                #vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
+                vmin = st.slider('Minimum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_min))
+                vmax = st.slider('Maximum value for color scale', min_value=float(global_min), max_value=float(global_max), value=float(global_max))
                 
-                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
+                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', vmin=vmin, vmax=vmax)
 
 
         elif analysis_type == 'PCA':
