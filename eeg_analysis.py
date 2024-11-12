@@ -268,15 +268,7 @@ def main():
             if len(valid_electrodes) == 0:
                 st.error("유효한 전극 이름이 없습니다. 데이터와 채널 이름을 확인하세요.")
             else:
-                activity_levels = []
-                for electrode in valid_electrodes:
-                    raw_data = raw_eeg[electrode].values
-        
-                    # 선택한 시간의 데이터만 전처리
-                    processed_data = apply_preprocessing(raw_data, electrode)
-                    activity_levels.append(processed_data[selected_idx])
-        
-                activity_levels = np.array(activity_levels)
+                activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
         
                 # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
