@@ -290,6 +290,14 @@ def main():
                 options=processed_eeg.columns.tolist(),
                 default=processed_eeg.columns.tolist()
             )
+
+            st.write("각 성분의 분산 기여도:")
+            explained_variance_df = pd.DataFrame({
+                '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
+                '고유값': eigenvalues,
+                '분산 기여도': explained_variance_ratio
+            })
+            st.dataframe(explained_variance_df)
         
             if selected_electrodes:
                 selected_data = processed_eeg[selected_electrodes]
