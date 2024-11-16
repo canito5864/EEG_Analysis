@@ -295,14 +295,7 @@ def main():
                 selected_data = processed_eeg[selected_electrodes]
         
                 # PCA 수행
-                max_components = min(len(selected_electrodes), len(selected_data))
-                n_components = st.slider(
-                    '차원 축소할 주요 성분 개수를 선택하세요',
-                    min_value=1,
-                    max_value=max_components,
-                    value=min(2, max_components)
-                )
-        
+                n_components = len(selected_electrodes)
                 pca = PCA(n_components=n_components)
                 transformed_data = pca.fit_transform(selected_data)
         
@@ -315,10 +308,10 @@ def main():
                 st.dataframe(transformed_df)
         
                 # 슬라이더로 고른 성분까지 자동 합산
-                st.subheader('자동 합산된 신호 시각화')
+                st.subheader('축소한 신호 시각화')
         
                 max_sum_components = st.slider(
-                    '합산할 성분의 개수를 선택하세요',
+                    '축소할 성분의 개수를 선택하세요',
                     min_value=1,
                     max_value=n_components,
                     value=n_components
@@ -337,7 +330,7 @@ def main():
                 st.pyplot(fig)
         
                 # 개별 성분 시각화
-                st.subheader('모든 주요 성분 개별 시각화')
+                st.subheader('모든 주요 성분 시각화')
         
                 for i in range(n_components):
                     fig, ax = plt.subplots(figsize=(10, 4))
@@ -347,6 +340,15 @@ def main():
                     ax.set_title(f'PC{i+1} 시각화')
                     ax.legend()
                     st.pyplot(fig)
+
+                for i in range(n_components):
+                    fig, ax = plt.subplots(figsize=(10, 4))
+                    ax.plot(time[:min_length], transformed_data[:min_length, i], label=f'PC{i+1}')
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.set_title(f'PC{i+1} 시각화')
+                ax.legend()
+                st.pyplot(fig)
         
                 # 데이터 다운로드
                 if uploaded_file is not None:
