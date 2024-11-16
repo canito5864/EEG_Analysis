@@ -290,17 +290,34 @@ def main():
                 options=processed_eeg.columns.tolist(),
                 default=processed_eeg.columns.tolist()
             )
-
-            st.write("각 성분의 분산 기여도:")
-            explained_variance_df = pd.DataFrame({
-                '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
-                '고유값': eigenvalues,
-                '분산 기여도': explained_variance_ratio
-            })
-            st.dataframe(explained_variance_df)
         
             if selected_electrodes:
                 selected_data = processed_eeg[selected_electrodes]
+
+                # PCA 수행 (모든 성분)
+                pca_full = PCA(n_components=min(len(selected_electrodes), len(selected_data)))
+                pca_full.fit(selected_data)
+        
+                # 고유값(분산) 시각화
+                eigenvalues = pca_full.explained_variance_
+                explained_variance_ratio = pca_full.explained_variance_ratio_
+        
+                st.subheader("PCA 고유값 (Eigenvalues) 및 분산 기여도")
+                fig, ax = plt.subplots()
+                ax.plot(range(1, len(eigenvalues) + 1), eigenvalues, marker='o', label='고유값')
+                ax.set_xlabel('성분 번호')
+                ax.set_ylabel('고유값 (Eigenvalue)')
+                ax.set_title('PCA 고유값 스펙트럼')
+                ax.legend()
+                st.pyplot(fig)
+        
+                st.write("각 성분의 분산 기여도:")
+                explained_variance_df = pd.DataFrame({
+                    '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
+                    '고유값': eigenvalues,
+                    '분산 기여도': explained_variance_ratio
+                })
+                st.dataframe(explained_variance_df)
         
                 # PCA 수행
                 max_components = min(len(selected_electrodes), len(selected_data))
