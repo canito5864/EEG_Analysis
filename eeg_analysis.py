@@ -389,8 +389,8 @@ def main():
                 )
 
                         
-        else:
-            st.warning("적어도 하나의 전극을 선택하세요.")
+            else:
+                st.warning("적어도 하나의 전극을 선택하세요.")
             
     else:
         st.write("먼저 CSV 파일을 업로드하세요.")
