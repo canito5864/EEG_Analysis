@@ -350,7 +350,7 @@ def main():
                 if len(time) > len(transformed_data):
                     ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=selected_pc)
                 else:
-                    ax.plot(time, transformed_data[:, selected_idx], label=selected_pc)
+                    ax.plot(time, transformed_data[:len(time), selected_idx], label=selected_pc)
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
