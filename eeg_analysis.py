@@ -365,7 +365,7 @@ def main():
                     ax.legend()
                     st.pyplot(fig)
 
-        
+                
                 # 데이터 다운로드
                 if uploaded_file is not None:
                     original_filename = uploaded_file.name
@@ -373,6 +373,11 @@ def main():
                     new_filename = f"{base_name}_PCA.csv"
                 else:
                     new_filename = "transformed_data_PCA.csv"  # 기본 파일명
+
+                transformed_df = pd.DataFrame(
+                transformed_data,
+                columns=[f'PC{i+1}' for i in range(n_components)]
+            )
                 
                 # 변환된 모든 주요 성분 저장
                 csv = transformed_df.to_csv(index=False).encode('utf-8')
