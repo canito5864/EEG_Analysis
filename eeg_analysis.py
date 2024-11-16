@@ -332,10 +332,17 @@ def main():
                 # 개별 성분 시각화
                 st.subheader('모든 주요 성분 시각화')
 
+                # 주요 성분 선택
+                selected_pcs = st.multiselect(
+                    '시각화할 주요 성분을 선택하세요 (합산 가능):',
+                    [f'PC{i+1}' for i in range(n_components)],
+                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
+                )
+
                 fig, ax = plt.subplots(figsize=(12, 6))
                 min_length = min(len(time), len(transformed_data))
         
-                for i in range(n_components):
+                for i in range(selected_pcs):
                     ax.plot(time[:min_length], transformed_data[:min_length, i], label=f'PC{i+1}')
                 
                 ax.set_xlabel('Time (s)')
