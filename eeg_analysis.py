@@ -305,7 +305,7 @@ def main():
                 st.subheader("PCA 고유값 (Eigenvalues) 및 분산 기여도")
                 
                 fig, ax = plt.subplots()
-                ax.plot(range(1, len(explained_variance_ratio) + 1), eigenvalues, marker='o', label='고유값')
+                ax.plot(range(1, len(explained_variance_ratio) + 1), explained_variance_ratio, marker='o', label='고유값')
                 ax.set_xlabel('성분 번호')
                 ax.set_ylabel('분산 기여도')
                 ax.set_title('각 성분의 분산 기여도')
