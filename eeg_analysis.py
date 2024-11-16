@@ -298,6 +298,33 @@ def main():
                 n_components = len(selected_electrodes)
                 pca = PCA(n_components=n_components)
                 transformed_data = pca.fit_transform(selected_data)
+
+                # 전극의 주요 성분 기여도 (Loadings)
+                st.subheader("각 주요 성분에 대한 전극 기여도")
+        
+                loadings = pd.DataFrame(
+                    pca.components_.T,
+                    index=selected_electrodes,
+                    columns=[f'PC{i+1}' for i in range(n_components)]
+                )
+        
+                st.dataframe(loadings)
+        
+                # 각 성분에 대한 전극 기여도 막대 그래프
+                st.subheader('전극 기여도 시각화')
+                selected_pc = st.selectbox(
+                    '기여도를 시각화할 주요 성분을 선택하세요:',
+                    [f'PC{i+1}' for i in range(n_components)]
+                )
+        
+                selected_pc_index = int(selected_pc.replace('PC', '')) - 1
+        
+                fig, ax = plt.subplots(figsize=(12, 6))
+                ax.bar(loadings.index, loadings.iloc[:, selected_pc_index], color='skyblue')
+                ax.set_xlabel('Electrode')
+                ax.set_ylabel('Contribution')
+                ax.set_title(f'{selected_pc}의 전극 기여도')
+                st.pyplot(fig)
         
                 # 슬라이더로 축소할 성분의 개수를 선택
                 max_sum_components = st.slider(
