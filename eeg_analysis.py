@@ -299,28 +299,35 @@ def main():
                 pca = PCA(n_components=n_components)
                 transformed_data = pca.fit_transform(selected_data)
         
-                # 축소된 데이터 출력
-                transformed_df = pd.DataFrame(
-                    transformed_data,
-                    columns=[f'PC{i+1}' for i in range(n_components)]
-                )
-                st.subheader('축소된 데이터 (모든 주요 성분)')
-                st.dataframe(transformed_df)
-        
-                # 슬라이더로 고른 성분까지 자동 합산
-                st.subheader('축소한 신호 시각화')
-        
+                # 슬라이더로 축소할 성분의 개수를 선택
                 max_sum_components = st.slider(
                     '축소할 성분의 개수를 선택하세요',
                     min_value=1,
                     max_value=n_components,
                     value=n_components
                 )
-
-                # 선택된 성분까지의 데이터만 사용
-                selected_pcs = [f'PC{i+1}' for i in range(max_sum_components)]
                 
-                # 선택된 주요 성분 시각화
+                # 모든 주요 성분의 분산 기여도와 누적 분산 기여도 표
+                st.subheader("모든 주요 성분의 분산 기여도")
+                
+                explained_variance_ratio = pca.explained_variance_ratio_
+                cumulative_variance = np.cumsum(explained_variance_ratio)
+                
+                explained_variance_df = pd.DataFrame({
+                    '성분': [f'PC{i+1}' for i in range(n_components)],
+                    '분산 기여도 (%)': explained_variance_ratio * 100,
+                    '누적 분산 기여도 (%)': cumulative_variance * 100
+                })
+                
+                # 선택된 성분까지 강조하여 표시
+                st.dataframe(explained_variance_df.style.apply(
+                    lambda x: ['background-color: lightyellow' if i < max_sum_components else '' for i in range(len(x))],
+                    axis=0
+                ))
+                
+                # 선택된 성분의 개별 시각화
+                st.subheader(f'선택된 주요 성분 (PC1 to PC{max_sum_components}) 개별 시각화')
+                
                 fig, ax = plt.subplots(figsize=(12, 6))
                 min_length = min(len(time), len(transformed_data))
                 
@@ -329,19 +336,20 @@ def main():
                     
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
-                ax.set_title(f'PCA Components (PC1 to PC{max_sum_components})')
+                ax.set_title(f'Selected PCA Components (PC1 to PC{max_sum_components})')
                 ax.legend()
                 st.pyplot(fig)
-        
+                
+                # 선택된 주요 성분 합산 신호 계산
                 summed_signal = np.sum(transformed_data[:, :max_sum_components], axis=1)
-        
+                
                 # 합산 신호 시각화
-                fig, ax = plt.subplots(figsize=(10, 6))
-                min_length = min(len(time), len(summed_signal))
+                st.subheader('선택된 주요 성분 합산 신호 시각화')
+                fig, ax = plt.subplots(figsize=(12, 6))
                 ax.plot(time[:min_length], summed_signal[:min_length], label='Summed Signal', color='red')
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
-                ax.set_title(f'Signal (PC1 to PC{max_sum_components})')
+                ax.set_title(f'Summed Signal (PC1 to PC{max_sum_components})')
                 ax.legend()
                 st.pyplot(fig)
         
