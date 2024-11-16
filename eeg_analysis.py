@@ -278,81 +278,81 @@ def main():
 
 
         if analysis_type == 'PCA':
-    st.subheader('PCA 분석')
-
-    # 전처리 및 데이터 준비
-    processed_eeg = pd.DataFrame()
-    for col in raw_eeg.columns:
-        processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
-
-    selected_electrodes = st.multiselect(
-        'PCA를 적용할 전극을 선택하세요:',
-        options=processed_eeg.columns.tolist(),
-        default=processed_eeg.columns.tolist()
-    )
-
-    if selected_electrodes:
-        selected_data = processed_eeg[selected_electrodes]
-
-        # PCA 수행
-        max_components = min(len(selected_electrodes), len(selected_data))
-        n_components = st.slider(
-            '차원 축소할 주요 성분 개수를 선택하세요',
-            min_value=1,
-            max_value=max_components,
-            value=min(2, max_components)
-        )
-
-        pca = PCA(n_components=n_components)
-        transformed_data = pca.fit_transform(selected_data)
-
-        # 축소된 데이터 출력
-        st.subheader('축소된 데이터 (모든 주요 성분)')
-        transformed_df = pd.DataFrame(
-            transformed_data,
-            columns=[f'PC{i+1}' for i in range(n_components)]
-        )
-        st.dataframe(transformed_df)
-
-        # 주요 성분 선택
-        selected_pcs = st.multiselect(
-            '시각화할 주요 성분을 선택하세요',
-            [f'PC{i+1}' for i in range(n_components)],
-            default=[f'PC1']  # 기본값: 첫 번째 성분 선택
-        )
-
-        # 선택된 주요 성분 시각화
-        if selected_pcs:
-            st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 시각화')
-
-            fig, ax = plt.subplots(figsize=(10, 6))
-            min_length = min(len(time), len(transformed_data))
-
-            for pc in selected_pcs:
-                idx = int(pc.replace('PC', '')) - 1
-                ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
-
-            ax.set_xlabel('Time (s)')
-            ax.set_ylabel('Amplitude')
-            ax.legend()
-            st.pyplot(fig)
-
-        # 데이터 다운로드
-        if uploaded_file is not None:
-            original_filename = uploaded_file.name
-            base_name = original_filename.split('.')[0]  # 파일명에서 확장자 제거
-            new_filename = f"{base_name}_PCA.csv"
-        else:
-            new_filename = "transformed_data_PCA.csv"  # 기본 파일명
-
-        # CSV 파일 다운로드
-        csv = transformed_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label=f"축소된 데이터 다운로드 ({new_filename})",
-            data=csv,
-            file_name=new_filename,
-            mime='text/csv'
-        )
+            st.subheader('PCA 분석')
+        
+            # 전처리 및 데이터 준비
+            processed_eeg = pd.DataFrame()
+            for col in raw_eeg.columns:
+                processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
+        
+            selected_electrodes = st.multiselect(
+                'PCA를 적용할 전극을 선택하세요:',
+                options=processed_eeg.columns.tolist(),
+                default=processed_eeg.columns.tolist()
+            )
+        
+            if selected_electrodes:
+                selected_data = processed_eeg[selected_electrodes]
+        
+                # PCA 수행
+                max_components = min(len(selected_electrodes), len(selected_data))
+                n_components = st.slider(
+                    '차원 축소할 주요 성분 개수를 선택하세요',
+                    min_value=1,
+                    max_value=max_components,
+                    value=min(2, max_components)
+                )
+        
+                pca = PCA(n_components=n_components)
+                transformed_data = pca.fit_transform(selected_data)
+        
+                # 축소된 데이터 출력
+                st.subheader('축소된 데이터 (모든 주요 성분)')
+                transformed_df = pd.DataFrame(
+                    transformed_data,
+                    columns=[f'PC{i+1}' for i in range(n_components)]
+                )
+                st.dataframe(transformed_df)
+        
+                # 주요 성분 선택
+                selected_pcs = st.multiselect(
+                    '시각화할 주요 성분을 선택하세요',
+                    [f'PC{i+1}' for i in range(n_components)],
+                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
+                )
+        
+                # 선택된 주요 성분 시각화
+                if selected_pcs:
+                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 시각화')
+        
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    min_length = min(len(time), len(transformed_data))
+        
+                    for pc in selected_pcs:
+                        idx = int(pc.replace('PC', '')) - 1
+                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
+        
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
+        
+                # 데이터 다운로드
+                if uploaded_file is not None:
+                    original_filename = uploaded_file.name
+                    base_name = original_filename.split('.')[0]  # 파일명에서 확장자 제거
+                    new_filename = f"{base_name}_PCA.csv"
+                else:
+                    new_filename = "transformed_data_PCA.csv"  # 기본 파일명
+        
+                # CSV 파일 다운로드
+                csv = transformed_df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label=f"축소된 데이터 다운로드 ({new_filename})",
+                    data=csv,
+                    file_name=new_filename,
+                    mime='text/csv'
+                )
 
 
                         
