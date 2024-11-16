@@ -303,15 +303,16 @@ def main():
                 explained_variance_ratio = pca_full.explained_variance_ratio_
         
                 st.subheader("PCA 고유값 (Eigenvalues) 및 분산 기여도")
-                fig, ax = plt.subplots()
-                ax.plot(range(1, len(eigenvalues) + 1), eigenvalues, marker='o', label='고유값')
+                
+                fig, ax = plt.bar()
+                ax.plot(range(1, len(explained_variance_ratio) + 1), eigenvalues, marker='o', label='고유값')
                 ax.set_xlabel('성분 번호')
-                ax.set_ylabel('고유값 (Eigenvalue)')
-                ax.set_title('PCA 고유값 스펙트럼')
+                ax.set_ylabel('분산 기여도')
+                ax.set_title('각 성분의 분산 기여도')
                 ax.legend()
                 st.pyplot(fig)
         
-                st.write("각 성분의 분산 기여도:")
+                st.write("각 성분의 고유값 및 분산 기여도:")
                 explained_variance_df = pd.DataFrame({
                     '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
                     '고유값': eigenvalues,
