@@ -303,7 +303,7 @@ def main():
                 max_sum_components = st.slider(
                     '축소할 성분의 개수를 선택하세요',
                     min_value=1,
-                    max_value=n_components-1,
+                    max_value=n_components,
                     value=n_components
                 )
                 
