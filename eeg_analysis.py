@@ -338,18 +338,21 @@ def main():
                     [f'PC{i+1}' for i in range(n_components)],
                     default=[f'PC1']  # 기본값: 첫 번째 성분 선택
                 )
-
-                fig, ax = plt.subplots(figsize=(12, 6))
-                min_length = min(len(time), len(transformed_data))
-        
-                for i in range(selected_pcs):
-                    ax.plot(time[:min_length], transformed_data[:min_length, i], label=f'PC{i+1}')
                 
-                ax.set_xlabel('Time (s)')
-                ax.set_ylabel('Amplitude')
-                ax.set_title('PCA Components')
-                ax.legend()
-                st.pyplot(fig)
+                if selected_pcs:
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    min_length = min(len(time), len(transformed_data))
+                
+                    # 선택된 주요 성분만 플롯
+                    for pc in selected_pcs:
+                        idx = int(pc.replace('PC', '')) - 1  # 성분 번호를 인덱스로 변환
+                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
+                    
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.set_title('PCA Components')
+                    ax.legend()
+                    st.pyplot(fig)
         
                 for i in range(n_components):
                     fig, ax = plt.subplots(figsize=(10, 4))
