@@ -349,7 +349,7 @@ def main():
         
                 # 선택된 주요 성분 시각화
                 if selected_pcs:
-                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 시각화')
+                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 개별 시각화')
         
                     fig, ax = plt.subplots(figsize=(10, 6))
                     min_length = min(len(time), len(transformed_data))
@@ -358,6 +358,42 @@ def main():
                         idx = int(pc.replace('PC', '')) - 1
                         ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
         
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
+
+                # 주요 성분 선택
+                selected_pcs = st.multiselect(
+                    '합산하여 시각화할 주요 성분을 선택하세요:',
+                    [f'PC{i+1}' for i in range(n_components)],
+                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
+                )
+                
+                # 선택된 주요 성분 시각화 및 합산
+                if selected_pcs:
+                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)})의 합 시각화')
+                
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    min_length = min(len(time), len(transformed_data))
+                
+                    # 선택된 성분을 합산
+                    summed_signal = np.zeros(min_length)
+                
+                    for pc in selected_pcs:
+                        idx = int(pc.replace('PC', '')) - 1
+                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
+                        summed_signal += transformed_data[:min_length, idx]
+                
+                    ax.set_xlabel('Time (s)')
+                    ax.set_ylabel('Amplitude')
+                    ax.legend()
+                    st.pyplot(fig)
+                
+                    # 합산된 신호 시각화
+                    st.subheader('선택된 주요 성분의 합 시각화')
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    ax.plot(time[:min_length], summed_signal, label='Summed Signal', color='red')
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
                     ax.legend()
