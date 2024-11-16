@@ -321,7 +321,7 @@ def main():
                 
                 # 선택된 성분까지 강조하여 표시
                 st.dataframe(explained_variance_df.style.apply(
-                    lambda x: ['background-color: lightyellow' if i < max_sum_components else '' for i in range(len(x))],
+                    lambda x: ['background-color: gray' if i < max_sum_components else '' for i in range(len(x))],
                     axis=0
                 ))
                 
