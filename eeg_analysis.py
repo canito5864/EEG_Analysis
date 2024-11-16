@@ -277,95 +277,82 @@ def main():
                 plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
 
 
-        elif analysis_type == 'PCA':
-            st.subheader('PCA 분석')
-        
-            # 전처리 적용
-            processed_eeg = pd.DataFrame()
-            for col in raw_eeg.columns:
-                processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
-        
-            # PCA를 적용할 전극 선택
-            selected_electrodes = st.multiselect(
-                'PCA를 적용할 전극을 선택하세요:',
-                options=processed_eeg.columns.tolist(),
-                default=processed_eeg.columns.tolist()
-            )
-        
-            if selected_electrodes:
-                selected_data = processed_eeg[selected_electrodes]
-        
-                # PCA 수행 (모든 성분)
-                pca_full = PCA(n_components=min(len(selected_electrodes), len(selected_data)))
-                pca_full.fit(selected_data)
-        
-                # 고유값(분산) 시각화
-                eigenvalues = pca_full.explained_variance_
-                explained_variance_ratio = pca_full.explained_variance_ratio_
-        
-                st.subheader("PCA 고유값 (Eigenvalues) 및 분산 기여도")
-                fig, ax = plt.subplots()
-                ax.plot(range(1, len(eigenvalues) + 1), eigenvalues, marker='o', label='고유값')
-                ax.set_xlabel('성분 번호')
-                ax.set_ylabel('고유값 (Eigenvalue)')
-                ax.set_title('PCA 고유값 스펙트럼')
-                ax.legend()
-                st.pyplot(fig)
-        
-                st.write("각 성분의 분산 기여도:")
-                explained_variance_df = pd.DataFrame({
-                    '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
-                    '고유값': eigenvalues,
-                    '분산 기여도': explained_variance_ratio
-                })
-                st.dataframe(explained_variance_df)
-        
-                # 사용자에게 차원 축소할 차원 수 선택
-                n_components = st.slider(
-                    '차원 축소할 주요 성분 개수를 선택하세요',
-                    min_value=1,
-                    max_value=len(eigenvalues),
-                    value=min(2, len(eigenvalues))  # 기본값: 2
-                )
-        
-                # PCA 적용 (선택된 차원 수만큼 축소)
-                pca = PCA(n_components=n_components)
-                transformed_data = pca.fit_transform(selected_data)
-        
-                st.subheader(f'선택된 {n_components}개 성분의 분산 기여도')
-                st.write(pd.DataFrame({
-                    '성분': [f'PC{i+1}' for i in range(n_components)],
-                    '분산 기여도': pca.explained_variance_ratio_
-                }))
-        
-                # 특정 주요 성분 선택 및 시각화
-                selected_pc = st.selectbox(
-                    '시각화할 주요 성분을 선택하세요',
-                    [f'PC{i+1}' for i in range(n_components)]
-                )
-                selected_idx = int(selected_pc.replace('PC', '')) - 1
-        
-                st.subheader(f'{selected_pc} 시각화')
-                fig, ax = plt.subplots()
-                if len(time) > len(transformed_data):
-                    ax.plot(time[:len(transformed_data)], transformed_data[:, selected_idx], label=selected_pc)
-                else:
-                    ax.plot(time, transformed_data[:len(time), selected_idx], label=selected_pc)
-                ax.set_xlabel('Time (s)')
-                ax.set_ylabel('Amplitude')
-                ax.legend()
-                st.pyplot(fig)
-        
-                # 주요 성분의 전극 기여도
-                st.write(f'{selected_pc}의 전극 기여도:')
-                loadings_df = pd.DataFrame({
-                    '전극': selected_electrodes,
-                    '기여도': pca.components_[selected_idx]
-                }).sort_values(by='기여도', ascending=False)
-                st.dataframe(loadings_df)
-        
-                # 기여도 막대 그래프
-                st.bar_chart(loadings_df.set_index('전극'))
+        if analysis_type == 'PCA':
+    st.subheader('PCA 분석')
+
+    # 전처리 및 데이터 준비
+    processed_eeg = pd.DataFrame()
+    for col in raw_eeg.columns:
+        processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
+
+    selected_electrodes = st.multiselect(
+        'PCA를 적용할 전극을 선택하세요:',
+        options=processed_eeg.columns.tolist(),
+        default=processed_eeg.columns.tolist()
+    )
+
+    if selected_electrodes:
+        selected_data = processed_eeg[selected_electrodes]
+
+        # PCA 수행
+        max_components = min(len(selected_electrodes), len(selected_data))
+        n_components = st.slider(
+            '차원 축소할 주요 성분 개수를 선택하세요',
+            min_value=1,
+            max_value=max_components,
+            value=min(2, max_components)
+        )
+
+        pca = PCA(n_components=n_components)
+        transformed_data = pca.fit_transform(selected_data)
+
+        # 축소된 데이터 출력
+        st.subheader('축소된 데이터 (모든 주요 성분)')
+        transformed_df = pd.DataFrame(
+            transformed_data,
+            columns=[f'PC{i+1}' for i in range(n_components)]
+        )
+        st.dataframe(transformed_df)
+
+        # 주요 성분 선택
+        selected_pcs = st.multiselect(
+            '시각화할 주요 성분을 선택하세요',
+            [f'PC{i+1}' for i in range(n_components)],
+            default=[f'PC1']  # 기본값: 첫 번째 성분 선택
+        )
+
+        # 선택된 주요 성분 시각화
+        if selected_pcs:
+            st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 시각화')
+
+            fig, ax = plt.subplots(figsize=(10, 6))
+            min_length = min(len(time), len(transformed_data))
+
+            for pc in selected_pcs:
+                idx = int(pc.replace('PC', '')) - 1
+                ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
+
+            ax.set_xlabel('Time (s)')
+            ax.set_ylabel('Amplitude')
+            ax.legend()
+            st.pyplot(fig)
+
+        # 데이터 다운로드
+        if uploaded_file is not None:
+            original_filename = uploaded_file.name
+            base_name = original_filename.split('.')[0]  # 파일명에서 확장자 제거
+            new_filename = f"{base_name}_PCA.csv"
+        else:
+            new_filename = "transformed_data_PCA.csv"  # 기본 파일명
+
+        # CSV 파일 다운로드
+        csv = transformed_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label=f"축소된 데이터 다운로드 ({new_filename})",
+            data=csv,
+            file_name=new_filename,
+            mime='text/csv'
+        )
 
 
                         
