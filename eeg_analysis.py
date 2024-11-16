@@ -293,32 +293,6 @@ def main():
         
             if selected_electrodes:
                 selected_data = processed_eeg[selected_electrodes]
-
-                # PCA 수행 (모든 성분)
-                pca_full = PCA(n_components=min(len(selected_electrodes), len(selected_data)))
-                pca_full.fit(selected_data)
-        
-                # 고유값(분산) 시각화
-                eigenvalues = pca_full.explained_variance_
-                explained_variance_ratio = pca_full.explained_variance_ratio_
-        
-                st.subheader("PCA 고유값 (Eigenvalues) 및 분산 기여도")
-                
-                fig, ax = plt.subplots()
-                ax.plot(range(1, len(explained_variance_ratio) + 1), explained_variance_ratio, marker='o', label='고유값')
-                ax.set_xlabel('성분 번호')
-                ax.set_ylabel('분산 기여도')
-                ax.set_title('각 성분의 분산 기여도')
-                ax.legend()
-                st.pyplot(fig)
-        
-                st.write("각 성분의 고유값 및 분산 기여도:")
-                explained_variance_df = pd.DataFrame({
-                    '성분': [f'PC{i+1}' for i in range(len(eigenvalues))],
-                    '고유값': eigenvalues,
-                    '분산 기여도': explained_variance_ratio
-                })
-                st.dataframe(explained_variance_df)
         
                 # PCA 수행
                 max_components = min(len(selected_electrodes), len(selected_data))
@@ -333,69 +307,44 @@ def main():
                 transformed_data = pca.fit_transform(selected_data)
         
                 # 축소된 데이터 출력
-                st.subheader('축소된 데이터 (모든 주요 성분)')
                 transformed_df = pd.DataFrame(
                     transformed_data,
                     columns=[f'PC{i+1}' for i in range(n_components)]
                 )
+                st.subheader('축소된 데이터 (모든 주요 성분)')
                 st.dataframe(transformed_df)
         
-                # 주요 성분 선택
-                selected_pcs = st.multiselect(
-                    '시각화할 주요 성분을 선택하세요',
-                    [f'PC{i+1}' for i in range(n_components)],
-                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
+                # 슬라이더로 고른 성분까지 자동 합산
+                st.subheader('자동 합산된 신호 시각화')
+        
+                max_sum_components = st.slider(
+                    '합산할 성분의 개수를 선택하세요',
+                    min_value=1,
+                    max_value=n_components,
+                    value=n_components
                 )
         
-                # 선택된 주요 성분 시각화
-                if selected_pcs:
-                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)}) 개별 시각화')
+                summed_signal = np.sum(transformed_data[:, :max_sum_components], axis=1)
         
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    min_length = min(len(time), len(transformed_data))
+                # 합산 신호 시각화
+                fig, ax = plt.subplots(figsize=(10, 6))
+                min_length = min(len(time), len(summed_signal))
+                ax.plot(time[:min_length], summed_signal[:min_length], label='Summed Signal', color='red')
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.set_title(f'Summed Signal (PC1 to PC{max_sum_components})')
+                ax.legend()
+                st.pyplot(fig)
         
-                    for pc in selected_pcs:
-                        idx = int(pc.replace('PC', '')) - 1
-                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
+                # 개별 성분 시각화
+                st.subheader('모든 주요 성분 개별 시각화')
         
+                for i in range(n_components):
+                    fig, ax = plt.subplots(figsize=(10, 4))
+                    ax.plot(time[:min_length], transformed_data[:min_length, i], label=f'PC{i+1}')
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('Amplitude')
-                    ax.legend()
-                    st.pyplot(fig)
-
-                # 주요 성분 선택
-                selected_pcs = st.multiselect(
-                    '합산하여 시각화할 주요 성분을 선택하세요:',
-                    [f'PC{i+1}' for i in range(n_components)],
-                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
-                )
-                
-                # 선택된 주요 성분 시각화 및 합산
-                if selected_pcs:
-                    st.subheader(f'선택된 주요 성분 ({", ".join(selected_pcs)})의 합 시각화')
-                
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    min_length = min(len(time), len(transformed_data))
-                
-                    # 선택된 성분을 합산
-                    summed_signal = np.zeros(min_length)
-                
-                    for pc in selected_pcs:
-                        idx = int(pc.replace('PC', '')) - 1
-                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
-                        summed_signal += transformed_data[:min_length, idx]
-                
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
-                    ax.legend()
-                    st.pyplot(fig)
-                
-                    # 합산된 신호 시각화
-                    st.subheader('선택된 주요 성분의 합 시각화')
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    ax.plot(time[:min_length], summed_signal, label='Summed Signal', color='red')
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
+                    ax.set_title(f'PC{i+1} 시각화')
                     ax.legend()
                     st.pyplot(fig)
         
@@ -406,8 +355,8 @@ def main():
                     new_filename = f"{base_name}_PCA.csv"
                 else:
                     new_filename = "transformed_data_PCA.csv"  # 기본 파일명
-        
-                # CSV 파일 다운로드
+                
+                # 변환된 모든 주요 성분 저장
                 csv = transformed_df.to_csv(index=False).encode('utf-8')
                 st.download_button(
                     label=f"축소된 데이터 다운로드 ({new_filename})",
@@ -415,7 +364,6 @@ def main():
                     file_name=new_filename,
                     mime='text/csv'
                 )
-
 
                         
         else:
