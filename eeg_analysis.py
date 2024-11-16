@@ -316,6 +316,22 @@ def main():
                     max_value=n_components,
                     value=n_components
                 )
+
+                # 선택된 성분까지의 데이터만 사용
+                selected_pcs = [f'PC{i+1}' for i in range(max_sum_components)]
+                
+                # 선택된 주요 성분 시각화
+                fig, ax = plt.subplots(figsize=(12, 6))
+                min_length = min(len(time), len(transformed_data))
+                
+                for i in range(max_sum_components):
+                    ax.plot(time[:min_length], transformed_data[:min_length, i], label=f'PC{i+1}')
+                    
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.set_title(f'PCA Components (PC1 to PC{max_sum_components})')
+                ax.legend()
+                st.pyplot(fig)
         
                 summed_signal = np.sum(transformed_data[:, :max_sum_components], axis=1)
         
@@ -331,28 +347,6 @@ def main():
         
                 # 개별 성분 시각화
                 st.subheader('모든 주요 성분 시각화')
-
-                # 주요 성분 선택
-                selected_pcs = st.multiselect(
-                    '시각화할 주요 성분을 선택하세요 (합산 가능):',
-                    [f'PC{i+1}' for i in range(n_components)],
-                    default=[f'PC1']  # 기본값: 첫 번째 성분 선택
-                )
-                
-                if selected_pcs:
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    min_length = min(len(time), len(transformed_data))
-                
-                    # 선택된 주요 성분만 플롯
-                    for pc in selected_pcs:
-                        idx = int(pc.replace('PC', '')) - 1  # 성분 번호를 인덱스로 변환
-                        ax.plot(time[:min_length], transformed_data[:min_length, idx], label=pc)
-                    
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
-                    ax.set_title('PCA Components')
-                    ax.legend()
-                    st.pyplot(fig)
         
                 for i in range(n_components):
                     fig, ax = plt.subplots(figsize=(10, 4))
