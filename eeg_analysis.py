@@ -93,31 +93,20 @@ def main():
             ['Wavelet Transform', 'Fourier Transform']
         )
 
-        def apply_preprocessing(data, electrode_key):
+        def apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands):
             if 'Wavelet Transform' in preprocessing:
-                data = wavelet_transform(data)
-                st.write(f'{electrode_key}: 이산 웨이블릿 변환 적용됨.')
+                _, data = wavelet_transform(data)
+                results['Wavelet Transform'] = data
+                st.write('이산 웨이블릿 변환 적용됨.')
     
             if 'Fourier Transform' in preprocessing:
-                data = fourier_transform(data)
-                st.write(f'{electrode_key}: 푸리에 변환 적용됨.')
+                freqs, magnitude = fourier_transform(data, fs)
+                results['Fourier Transform'] = (freqs, magnitude)
+                st.write('푸리에 변환 적용됨.')
             
-            return data
+            return data, results
 
         filter_first = st.radio("전처리 순서를 선택하세요", ['주파수 대역 필터링 → 전처리', '전처리 → 주파수 대역 필터링'])
-        
-        if filter_first == '주파수 대역 필터링 → 전처리':
-            if selected_bands:
-                for band in selected_bands:
-                    lowcut, highcut = frequency_bands[band]
-                    data = butter_bandpass_filter(data, lowcut, highcut, fs)
-            processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
-        else:
-            processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
-            if selected_bands:
-                for band in selected_bands:
-                    lowcut, highcut = frequency_bands[band]
-                    processed_data = butter_bandpass_filter(processed_data, lowcut, highcut, fs)
 
         num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=0, max_value=100, value=1)
         time_ranges = []
@@ -143,9 +132,21 @@ def main():
             # 전극 선택
             electrode = st.selectbox('분석할 전극을 선택하세요', raw_eeg.columns)
             raw_data = raw_eeg[electrode]
-    
-            # 전처리 적용
-            processed_data = apply_preprocessing(raw_data, electrode)
+
+            if filter_first == '주파수 대역 필터링 → 전처리':
+                if selected_bands:
+                    for band in selected_bands:
+                        lowcut, highcut = frequency_bands[band]
+                        data = butter_bandpass_filter(raw_data, lowcut, highcut, fs)
+                processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
+            
+            else:
+                processed_data, results = apply_preprocessing(raw_data, fs, selected_bands, preprocessing, frequency_bands)
+                if selected_bands:
+                    for band in selected_bands:
+                        lowcut, highcut = frequency_bands[band]
+                        processed_data = butter_bandpass_filter(processed_data, lowcut, highcut, fs)
+
     
             # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
@@ -183,10 +184,22 @@ def main():
     
             data1 = raw_eeg[electrode1]
             data2 = raw_eeg[electrode2]
-    
-            # 전처리 적용
-            processed_data1 = apply_preprocessing(data1, electrode1)
-            processed_data2 = apply_preprocessing(data2, electrode2)
+
+            if filter_first == '주파수 대역 필터링 → 전처리':
+                if selected_bands:
+                    for band in selected_bands:
+                        lowcut, highcut = frequency_bands[band]
+                        data1 = butter_bandpass_filter(data1, lowcut, highcut, fs)
+                        data2 = butter_bandpass_filter(data2, lowcut, highcut, fs)
+                processed_data1, results1 = apply_preprocessing(data1, fs, selected_bands, preprocessing, frequency_bands)
+            else:
+                processed_data1, results = apply_preprocessing(data1, fs, selected_bands, preprocessing, frequency_bands)
+                processed_data2, results = apply_preprocessing(data2, fs, selected_bands, preprocessing, frequency_bands)
+                if selected_bands:
+                    for band in selected_bands:
+                        lowcut, highcut = frequency_bands[band]
+                        processed_data1 = butter_bandpass_filter(processed_data1, lowcut, highcut, fs)
+                        processed_data2 = butter_bandpass_filter(processed_data2, lowcut, highcut, fs)
     
             # 두 신호를 같은 그래프에 시각화
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
