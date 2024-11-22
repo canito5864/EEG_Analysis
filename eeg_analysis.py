@@ -16,32 +16,38 @@ def main():
         b, a = butter(order, [low, high], btype='band')
         return b, a
 
+    #주파수 필터링링
     def butter_bandpass_filter(data, lowcut, highcut, fs, order=4):
         b, a = butter_bandpass(lowcut, highcut, fs, order=order)
         y = lfilter(b, a, data)
         return y
-    
+
+    #웨이블릿 변환
     def wavelet_transform(data, wavelet="db4", level=2):
         coeffs = pywt.wavedec(data, wavelet, level=level)
         reconstructed_signal = pywt.waverec(coeffs, wavelet)
         return coeffs, reconstructed_signal
-    
+
+    #푸리에 변환
     def fourier_transform(data, fs):
         data = data - np.mean(data)
         N = len(data)
         fft_result = fft(data)
         freqs = np.fft.fftfreq(N, d=1/fs)
         return freqs[:N // 2], np.abs(fft_result[:N // 2])
-    
+
+    #두 신호의 차이 계산
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
-    
+
+    #topomap 시각화
     def plot_topomap(data, pos, title='EEG Topomap', cmap='Spectral'):
         fig, ax = plt.subplots()
         mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap=cmap)
         ax.set_title(title)
         st.pyplot(fig)
 
+    #주파수 대역 분리 및 신호 전처리 한 번에 적용
     def apply_processing(data, fs, preprocessing, selected_bands, frequency_bands, filter_first):
             fft_results = None
 
