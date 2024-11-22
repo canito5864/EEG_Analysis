@@ -36,7 +36,7 @@ def main():
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
     
-    def plot_topomap(data, pos, title='EEG Topomap', cmap='viridis'):
+    def plot_topomap(data, pos, title='EEG Topomap', cmap='Spectral'):
         fig, ax = plt.subplots()
         mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap=cmap)
         ax.set_title(title)
@@ -266,6 +266,24 @@ def main():
     
         elif analysis_type == 'Topomap Visualization':
             st.subheader('뇌파 활동 시각화 (Topomap)')
+
+            colormap_info = {
+                "viridis": "균등한 시각적 인식을 제공하는 녹색-파랑색 기반 연속 색상 맵.",
+                "plasma": "따뜻한 색상(노란색-오렌지-보라색)으로 이루어진 고대비 색상 맵.",
+                "inferno": "노란색에서 빨강, 보라색, 검정으로 이어지는 고대비 색상 맵.",
+                "magma": "검정에서 노란색으로 부드럽게 전환되는 색상 맵.",
+                "cividis": "색맹 사용자에게도 적합한 균일한 색상 맵.",
+                "cool": "파란색에서 분홍색으로 변하는 부드러운 색상 맵.",
+                "hot": "검정에서 빨강, 노랑, 흰색으로 변하는 온도 기반 색상 맵.",
+                "RdBu_r": "빨강-파랑의 양극성 색상 맵으로 양수와 음수를 구별하기에 적합.",
+                "Spectral": "무지개 색상 맵으로 다채로운 시각화를 제공.",
+            }
+
+            colormaps = list(colormap_info.keys())
+            selected_cmap = st.selectbox("Select Color Map", colormaps, index=0)
+
+            st.write(f"### Selected Color Map: `{selected_cmap}`")
+            st.write(colormap_info[selected_cmap])
     
             selected_time = st.slider(
                 '시각화할 시간을 초 단위로 선택하세요',
@@ -286,10 +304,6 @@ def main():
         
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
 
-            colormaps = [
-                "viridis", "plasma", "inferno", "magma", "cividis", "cool", "hot", "RdBu_r", "Spectral"
-            ]
-            selected_cmap = st.selectbox("시각화 방법을 선택하세요", colormaps, index=0)
                 
             plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', cmap=selected_cmap)
 
