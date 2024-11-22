@@ -24,7 +24,8 @@ def main():
     
     def wavelet_transform(data, wavelet="db4", level=2):
         coeffs = pywt.wavedec(data, wavelet, level=level)
-        return pywt.waverec(coeffs, wavelet)
+        reconstructed_signal = pywt.waverec(coeffs, wavelet)
+        return coeffs, reconstructed_signal
     
     def fourier_transform(data, fs):
         data = data - np.mean(data)
@@ -32,6 +33,41 @@ def main():
         fft_result = fft(data)
         freqs = np.fft.fftfreq(N, d=1/fs)
         return freqs[:N // 2], np.abs(fft_result[:N // 2])
+
+    def apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands):
+            fft_results = None
+
+            if filter_first == "Frequency Band Filtering → Preprocessing":
+                # Apply bandpass filtering first
+                filtered_signals = []
+                for band in selected_bands:
+                    lowcut, highcut = frequency_bands[band]
+                    filtered_signal = butter_bandpass_filter(data, lowcut, highcut, fs)
+                    filtered_signals.append(filtered_signal)
+                data = np.sum(filtered_signals, axis=0)
+        
+                # Apply other preprocessing steps
+                if "Wavelet Transform" in preprocessing:
+                    _, data = wavelet_transform(data)
+                if "Fourier Transform" in preprocessing:
+                    fft_results = fourier_transform(data, fs)
+        
+            elif filter_first == "Preprocessing → Frequency Band Filtering":
+                # Apply other preprocessing steps first
+                if "Wavelet Transform" in preprocessing:
+                    _, data = wavelet_transform(data)
+                if "Fourier Transform" in preprocessing:
+                    fft_results = fourier_transform(data, fs)
+        
+                # Apply bandpass filtering last
+                filtered_signals = []
+                for band in selected_bands:
+                    lowcut, highcut = frequency_bands[band]
+                    filtered_signal = butter_bandpass_filter(data, lowcut, highcut, fs)
+                    filtered_signals.append(filtered_signal)
+                data = np.sum(filtered_signals, axis=0)
+        
+            return data, fft_results
     
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
@@ -74,7 +110,7 @@ def main():
         time = np.arange(0, len(raw_eeg) * sampling_interval, sampling_interval)
     
         # 분석 옵션 선택
-        analysis_type = st.selectbox('분석할 옵션을 선택하세요', (
+        analysis_type = st.selectbox('분석할 방법을 선택하세요', (
             'Single Electrode',
             'Electrode Comparison',
             'Topomap Visualization',
@@ -97,29 +133,17 @@ def main():
             ['Wavelet Transform', 'Fourier Transform']
         )
 
-        def apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands):
-            if 'Wavelet Transform' in preprocessing:
-                _, data = wavelet_transform(data)
-                results['Wavelet Transform'] = data
-                st.write('이산 웨이블릿 변환 적용됨.')
-    
-            if 'Fourier Transform' in preprocessing:
-                freqs, magnitude = fourier_transform(data, fs)
-                results['Fourier Transform'] = (freqs, magnitude)
-                st.write('푸리에 변환 적용됨.')
-            
-            return data, results
-
-        filter_first = st.radio("전처리 순서를 선택하세요", ['주파수 대역 필터링 → 전처리', '전처리 → 주파수 대역 필터링'])
-
+        filter_first = st.radio(
+            "Select Preprocessing Order",
+            ["Frequency Band Filtering → Preprocessing", "Preprocessing → Frequency Band Filtering"]
+        )
+        
         num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=0, max_value=100, value=1)
         time_ranges = []
 
         for i in range(num_ranges):
             start_time = st.text_input(f"구간 {i+1} 시작 시간 (초)", "0.0")
             end_time = st.text_input(f"구간 {i+1} 종료 시간 (초)", str(len(time) * sampling_interval))
-            
-            # 입력받은 값을 float으로 변환하여 구간 리스트에 추가
             try:
                 start_time = float(start_time)
                 end_time = float(end_time)
@@ -137,21 +161,10 @@ def main():
             electrode = st.selectbox('분석할 전극을 선택하세요', raw_eeg.columns)
             raw_data = raw_eeg[electrode]
 
-            if filter_first == '주파수 대역 필터링 → 전처리':
-                if selected_bands:
-                    for band in selected_bands:
-                        lowcut, highcut = frequency_bands[band]
-                        data = butter_bandpass_filter(raw_data, lowcut, highcut, fs)
-                processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
-            
-            else:
-                processed_data, results = apply_preprocessing(raw_data, fs, selected_bands, preprocessing, frequency_bands)
-                if selected_bands:
-                    for band in selected_bands:
-                        lowcut, highcut = frequency_bands[band]
-                        processed_data = butter_bandpass_filter(processed_data, lowcut, highcut, fs)
+            processed_data, fft_results = apply_processing(
+                raw_data, fs, preprocessing, selected_bands, frequency_bands, filter_first
+            )
 
-    
             # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
             fig, ax = plt.subplots()
@@ -159,6 +172,7 @@ def main():
                 ax.plot(time, processed_data[:len(time)], label=f'{electrode} - 필터링된 신호', linewidth=0.5)
             else:
                 ax.plot(time[:len(processed_data)], processed_data, label=f'{electrode} - 필터링된 신호', linewidth=0.5)
+                
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
@@ -166,6 +180,16 @@ def main():
             ax.legend()
             plt.figure(figsize=(100,10))
             st.pyplot(fig)
+
+            if fft_results:
+                freqs, magnitude = fft_results
+                st.subheader("Fourier Transform")
+                fig, ax = plt.subplots(figsize=(10, 4))
+                ax.plot(freqs, magnitude, label="FFT Magnitude")
+                ax.set_xlabel("Frequency (Hz)")
+                ax.set_ylabel("Magnitude")
+                ax.legend()
+                st.pyplot(fig)
 
             for idx, (start_time, end_time) in enumerate(time_ranges):
                 start_idx = int(start_time / sampling_interval)
@@ -189,21 +213,12 @@ def main():
             data1 = raw_eeg[electrode1]
             data2 = raw_eeg[electrode2]
 
-            if filter_first == '주파수 대역 필터링 → 전처리':
-                if selected_bands:
-                    for band in selected_bands:
-                        lowcut, highcut = frequency_bands[band]
-                        data1 = butter_bandpass_filter(data1, lowcut, highcut, fs)
-                        data2 = butter_bandpass_filter(data2, lowcut, highcut, fs)
-                processed_data1, results1 = apply_preprocessing(data1, fs, selected_bands, preprocessing, frequency_bands)
-            else:
-                processed_data1, results = apply_preprocessing(data1, fs, selected_bands, preprocessing, frequency_bands)
-                processed_data2, results = apply_preprocessing(data2, fs, selected_bands, preprocessing, frequency_bands)
-                if selected_bands:
-                    for band in selected_bands:
-                        lowcut, highcut = frequency_bands[band]
-                        processed_data1 = butter_bandpass_filter(processed_data1, lowcut, highcut, fs)
-                        processed_data2 = butter_bandpass_filter(processed_data2, lowcut, highcut, fs)
+            processed_data1, _ = apply_processing(
+                data1, fs, preprocessing, selected_bands, frequency_bands, filter_first
+            )
+            processed_data2, _ = apply_processing(
+                data2, fs, preprocessing, selected_bands, frequency_bands, filter_first
+            )
     
             # 두 신호를 같은 그래프에 시각화
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
@@ -212,10 +227,12 @@ def main():
                 ax.plot(time, processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
             else:
                 ax.plot(time[:len(processed_data1)], processed_data1, label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+            
             if len(time)<len(processed_data2):
                 ax.plot(time, processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
             else:
                 ax.plot(time[:len(processed_data2)], processed_data2, label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
+            
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
             ax.set_xlabel('Time (s)')
