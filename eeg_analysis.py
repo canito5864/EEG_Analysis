@@ -36,7 +36,7 @@ def main():
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
     
-    def plot_topomap(data, pos, title='EEG Topomap'):
+    def plot_topomap(data, pos, title='EEG Topomap', cmap=selected_cmap):
         fig, ax = plt.subplots()
         mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap)
         ax.set_title(title)
