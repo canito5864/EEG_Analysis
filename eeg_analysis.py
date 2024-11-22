@@ -38,7 +38,7 @@ def main():
     
     def plot_topomap(data, pos, title='EEG Topomap'):
         fig, ax = plt.subplots()
-        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0)
+        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap)
         ax.set_title(title)
         st.pyplot(fig)
 
@@ -285,9 +285,14 @@ def main():
                 activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
         
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
+
+            colormaps = [
+                "viridis", "plasma", "inferno", "magma", "cividis", "cool", "hot", "RdBu_r", "Spectral"
+            ]
+            selected_cmap = st.selectbox("시각화 방법을 선택하세요", colormaps, index=0)
                 
                 
-                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds')
+                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', cmap=selected_cmap)
 
 
         if analysis_type == 'PCA':
