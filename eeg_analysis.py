@@ -45,7 +45,7 @@ def main():
     def apply_processing(data, fs, preprocessing, selected_bands, frequency_bands, filter_first):
             fft_results = None
 
-            if filter_first == "Frequency Band Filtering → Preprocessing":-
+            if filter_first == "Frequency Band Filtering → Preprocessing":
                 filtered_signals = []
                 for band in selected_bands:
                     lowcut, highcut = frequency_bands[band]
