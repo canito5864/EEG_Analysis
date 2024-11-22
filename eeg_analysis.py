@@ -36,9 +36,9 @@ def main():
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
     
-    def plot_topomap(data, pos, title='EEG Topomap', cmap=selected_cmap):
+    def plot_topomap(data, pos, title='EEG Topomap', cmap='viridis'):
         fig, ax = plt.subplots()
-        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap=selected_cmap)
+        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap=cmap)
         ax.set_title(title)
         st.pyplot(fig)
 
@@ -291,8 +291,7 @@ def main():
             ]
             selected_cmap = st.selectbox("시각화 방법을 선택하세요", colormaps, index=0)
                 
-                
-                plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', cmap=selected_cmap)
+            plot_topomap(activity_levels, pos, title=f'EEG Activity at {selected_time:.3f} seconds', cmap=selected_cmap)
 
 
         if analysis_type == 'PCA':
