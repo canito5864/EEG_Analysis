@@ -43,7 +43,7 @@ def main():
         ax.set_title(title)
         st.pyplot(fig)
 
-    def apply_processing(data, fs, selected_bands, preprocessing, frequency_bands):
+    def apply_processing(data, fs, selected_bands, preprocessing, frequency_bands, filter_first):
             fft_results = None
 
             if filter_first == "Frequency Band Filtering → Preprocessing":
