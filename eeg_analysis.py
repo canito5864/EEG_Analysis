@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import mne
 from sklearn.decomposition import PCA
 
-# Helper functions for signal processing
 def main():
     def butter_bandpass(lowcut, highcut, fs, order=4):
         nyq = 0.5 * fs
@@ -46,8 +45,7 @@ def main():
     def apply_processing(data, fs, preprocessing, selected_bands, frequency_bands, filter_first):
             fft_results = None
 
-            if filter_first == "Frequency Band Filtering → Preprocessing":
-                # Apply bandpass filtering first
+            if filter_first == "Frequency Band Filtering → Preprocessing":-
                 filtered_signals = []
                 for band in selected_bands:
                     lowcut, highcut = frequency_bands[band]
@@ -55,20 +53,17 @@ def main():
                     filtered_signals.append(filtered_signal)
                 data = np.sum(filtered_signals, axis=0)
         
-                # Apply other preprocessing steps
-                if "Wavelet Transform" in preprocessing:
-                    _, data = wavelet_transform(data)
                 if "Fourier Transform" in preprocessing:
                     fft_results = fourier_transform(data, fs)
+                if "Wavelet Transform" in preprocessing:
+                    _, data = wavelet_transform(data)
         
             elif filter_first == "Preprocessing → Frequency Band Filtering":
-                # Apply other preprocessing steps first
-                if "Wavelet Transform" in preprocessing:
-                    _, data = wavelet_transform(data)
                 if "Fourier Transform" in preprocessing:
                     fft_results = fourier_transform(data, fs)
-        
-                # Apply bandpass filtering last
+                if "Wavelet Transform" in preprocessing:
+                    _, data = wavelet_transform(data)
+                    
                 filtered_signals = []
                 for band in selected_bands:
                     lowcut, highcut = frequency_bands[band]
@@ -78,21 +73,16 @@ def main():
         
             return data, fft_results
     
-    # Streamlit app
     st.title('EEG 뇌파 분석')
     
-    # CSV 파일 업로드
     uploaded_file = st.file_uploader("CSV 파일을 업로드하세요", type="csv")
     
     if uploaded_file is not None:
-        # CSV 파일 읽기
         raw_eeg = pd.read_csv(uploaded_file, skiprows=[0])
     
-        # 'eeg.'로 시작하는 특정 전극만 필터링
         eeg_columns = ['EEG.AF3', 'EEG.AF4', 'EEG.T7', 'EEG.T8', 'EEG.Pz']
         raw_eeg = raw_eeg[eeg_columns]
     
-        # 전극 이름 매핑 (MNE 표준 채널 이름으로)
         mapping = {
             'EEG.AF3': 'AF3',
             'EEG.AF4': 'AF4',
@@ -101,15 +91,12 @@ def main():
             'EEG.Pz': 'Pz'
         }
     
-        # 전극 이름을 MNE 표준 전극 이름으로 매핑
         raw_eeg = raw_eeg.rename(columns=mapping)
     
-        # 타임 시리즈 생성
-        sampling_interval = 0.00780995  # 예시로 0.007초 샘플링 간격을 사용
+        sampling_interval = 0.00780995 
         fs = 1 / sampling_interval
         time = np.arange(0, len(raw_eeg) * sampling_interval, sampling_interval)
     
-        # 분석 옵션 선택
         analysis_type = st.selectbox('분석할 방법을 선택하세요', (
             'Single Electrode',
             'Electrode Comparison',
@@ -117,7 +104,6 @@ def main():
             'PCA'
         ))
 
-        # 주파수 대역 선택 (여러 개 선택 가능)
         frequency_bands = {
             'Delta (0.5-4 Hz)': (0.5, 4),
             'Theta (4-8 Hz)': (4, 8),
@@ -127,11 +113,6 @@ def main():
         }
         selected_bands = st.multiselect('분석할 주파수 대역을 선택하세요', list(frequency_bands.keys()))
 
-        #lowcut = st.number_input("Enter Low Cutoff Frequency (Hz)", min_value=0.1, max_value=450.0, value=0.5)
-        #highcut = st.number_input("Enter High Cutoff Frequency (Hz)", min_value=0.1, max_value=450.0, value=45.0)
-
-    
-        # 전처리 선택 (복수 선택 가능)
         preprocessing = st.multiselect(
             '적용할 전처리 방법을 선택하세요',
             ['Wavelet Transform', 'Fourier Transform']
@@ -161,7 +142,6 @@ def main():
         if analysis_type == 'Single Electrode':
             st.subheader('단일 전극 분석')
     
-            # 전극 선택
             electrode = st.selectbox('분석할 전극을 선택하세요', raw_eeg.columns)
             raw_data = raw_eeg[electrode]
 
@@ -169,7 +149,6 @@ def main():
                 raw_data, fs, preprocessing, selected_bands, frequency_bands, filter_first
             )
 
-            # 전처리된 신호 시각화
             st.subheader(f'{electrode} 채널의 전처리된 EEG 신호')
             fig, ax = plt.subplots()
             if len(time)<len(processed_data):
@@ -224,7 +203,6 @@ def main():
                 data2, fs, preprocessing, selected_bands, frequency_bands, filter_first
             )
     
-            # 두 신호를 같은 그래프에 시각화
             st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
             fig, ax = plt.subplots()
             if len(time)<len(processed_data1):
@@ -258,7 +236,6 @@ def main():
                 ax.legend()
                 st.pyplot(fig)
     
-            # 전극 간 차이 계산
             difference = calculate_difference(processed_data1, processed_data2)
     
             st.subheader(f'{electrode1}과 {electrode2}의 EEG 신호 차이')
@@ -290,7 +267,6 @@ def main():
         elif analysis_type == 'Topomap Visualization':
             st.subheader('뇌파 활동 시각화 (Topomap)')
     
-            # 특정 시간 선택 (슬라이더를 사용하여 연속적으로 시간 조절)
             selected_time = st.slider(
                 '시각화할 시간을 초 단위로 선택하세요',
                 min_value=0.0,
@@ -300,7 +276,6 @@ def main():
             )
             selected_idx = int(selected_time / sampling_interval)
     
-            # EEG 채널 위치 정보 가져오기
             montage = mne.channels.make_standard_montage('standard_1020')
             valid_electrodes = [ch for ch in raw_eeg.columns if ch in montage.ch_names]
     
@@ -309,7 +284,6 @@ def main():
             else:
                 activity_levels = [raw_eeg[ch].iloc[selected_idx] for ch in valid_electrodes]
         
-                # EEG 채널 위치 정보
                 pos = np.array([montage.get_positions()['ch_pos'][ch] for ch in valid_electrodes])
                 
                 
@@ -319,7 +293,6 @@ def main():
         if analysis_type == 'PCA':
             st.subheader('PCA 분석')
         
-            # 전처리 및 데이터 준비
             processed_eeg = pd.DataFrame()
             for col in raw_eeg.columns:
                 processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
@@ -333,12 +306,10 @@ def main():
             if selected_electrodes:
                 selected_data = processed_eeg[selected_electrodes]
         
-                # PCA 수행
                 n_components = len(selected_electrodes)
                 pca = PCA(n_components=n_components)
                 transformed_data = pca.fit_transform(selected_data)
 
-                # 전극의 주요 성분 기여도 (Loadings)
                 st.subheader("각 주요 성분에 대한 전극 기여도")
         
                 loadings = pd.DataFrame(
@@ -349,7 +320,6 @@ def main():
         
                 st.dataframe(loadings)
         
-                # 각 성분에 대한 전극 기여도 막대 그래프
                 st.subheader('전극 기여도 시각화')
                 selected_pc = st.selectbox(
                     '기여도를 시각화할 주요 성분을 선택하세요:',
@@ -365,7 +335,6 @@ def main():
                 ax.set_title(f'{selected_pc}의 전극 기여도')
                 st.pyplot(fig)
         
-                # 슬라이더로 축소할 성분의 개수를 선택
                 max_sum_components = st.slider(
                     '축소할 성분의 개수를 선택하세요',
                     min_value=1,
@@ -373,7 +342,6 @@ def main():
                     value=n_components
                 )
                 
-                # 모든 주요 성분의 분산 기여도와 누적 분산 기여도 표
                 st.subheader("모든 주요 성분의 분산 기여도")
                 
                 explained_variance_ratio = pca.explained_variance_ratio_
@@ -385,13 +353,11 @@ def main():
                     '누적 분산 기여도 (%)': cumulative_variance * 100
                 })
                 
-                # 선택된 성분까지 강조하여 표시
                 st.dataframe(explained_variance_df.style.apply(
                     lambda x: ['background-color: gray' if i < max_sum_components else '' for i in range(len(x))],
                     axis=0
                 ))
                 
-                # 선택된 성분의 개별 시각화
                 st.subheader(f'선택된 주요 성분 (PC1 to PC{max_sum_components}) 개별 시각화')
                 
                 fig, ax = plt.subplots(figsize=(12, 6))
@@ -406,10 +372,8 @@ def main():
                 ax.legend()
                 st.pyplot(fig)
                 
-                # 선택된 주요 성분 합산 신호 계산
                 summed_signal = np.sum(transformed_data[:, :max_sum_components], axis=1)
                 
-                # 합산 신호 시각화
                 st.subheader('선택된 주요 성분 합산 신호 시각화')
                 fig, ax = plt.subplots(figsize=(12, 6))
                 ax.plot(time[:min_length], summed_signal[:min_length], label='Summed Signal', color='red')
@@ -419,7 +383,6 @@ def main():
                 ax.legend()
                 st.pyplot(fig)
         
-                # 개별 성분 시각화
                 st.subheader('모든 주요 성분 시각화')
         
                 for i in range(n_components):
@@ -432,20 +395,18 @@ def main():
                     st.pyplot(fig)
 
                 
-                # 데이터 다운로드
                 if uploaded_file is not None:
                     original_filename = uploaded_file.name
-                    base_name = original_filename.split('.')[0]  # 파일명에서 확장자 제거
+                    base_name = original_filename.split('.')[0] 
                     new_filename = f"{base_name}_PCA.csv"
                 else:
-                    new_filename = "transformed_data_PCA.csv"  # 기본 파일명
+                    new_filename = "transformed_data_PCA.csv" 
 
                 transformed_df = pd.DataFrame(
                 transformed_data,
                 columns=[f'PC{i+1}' for i in range(n_components)]
             )
                 
-                # 변환된 모든 주요 성분 저장
                 csv = transformed_df.to_csv(index=False).encode('utf-8')
                 st.download_button(
                     label=f"축소된 데이터 다운로드 ({new_filename})",
