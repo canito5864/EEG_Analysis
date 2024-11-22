@@ -33,6 +33,15 @@ def main():
         fft_result = fft(data)
         freqs = np.fft.fftfreq(N, d=1/fs)
         return freqs[:N // 2], np.abs(fft_result[:N // 2])
+    
+    def calculate_difference(signal1, signal2):
+        return np.abs(signal1 - signal2)
+    
+    def plot_topomap(data, pos, title='EEG Topomap'):
+        fig, ax = plt.subplots()
+        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0)
+        ax.set_title(title)
+        st.pyplot(fig)
 
     def apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands):
             fft_results = None
@@ -68,15 +77,6 @@ def main():
                 data = np.sum(filtered_signals, axis=0)
         
             return data, fft_results
-    
-    def calculate_difference(signal1, signal2):
-        return np.abs(signal1 - signal2)
-    
-    def plot_topomap(data, pos, title='EEG Topomap'):
-        fig, ax = plt.subplots()
-        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0)
-        ax.set_title(title)
-        st.pyplot(fig)
     
     # Streamlit app
     st.title('EEG 뇌파 분석')
