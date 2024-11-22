@@ -26,8 +26,12 @@ def main():
         coeffs = pywt.wavedec(data, wavelet, level=level)
         return pywt.waverec(coeffs, wavelet)
     
-    def fourier_transform(data):
-        return np.abs(fft(data))
+    def fourier_transform(data, fs):
+        data = data - np.mean(data)
+        N = len(data)
+        fft_result = fft(data)
+        freqs = np.fft.fftfreq(N, d=1/fs)
+        return freqs[:N // 2], np.abs(fft_result[:N // 2])
     
     def calculate_difference(signal1, signal2):
         return np.abs(signal1 - signal2)
