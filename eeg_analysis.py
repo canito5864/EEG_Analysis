@@ -280,7 +280,7 @@ def main():
             }
 
             colormaps = list(colormap_info.keys())
-            selected_cmap = st.selectbox("Select Color Map", colormaps, index=0)
+            selected_cmap = st.selectbox("Select Color Map", colormaps, index=-1)
 
             st.write(f"### Selected Color Map: `{selected_cmap}`")
             st.write(colormap_info[selected_cmap])
