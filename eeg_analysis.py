@@ -43,7 +43,7 @@ def main():
         ax.set_title(title)
         st.pyplot(fig)
 
-    def apply_processing(data, fs, selected_bands, preprocessing, frequency_bands, filter_first):
+    def apply_processing(data, fs, preprocessing, selected_bands, frequency_bands, filter_first):
             fft_results = None
 
             if filter_first == "Frequency Band Filtering → Preprocessing":
@@ -126,6 +126,10 @@ def main():
             'Gamma (30-45 Hz)': (30, 45)
         }
         selected_bands = st.multiselect('분석할 주파수 대역을 선택하세요', list(frequency_bands.keys()))
+
+        #lowcut = st.number_input("Enter Low Cutoff Frequency (Hz)", min_value=0.1, max_value=450.0, value=0.5)
+        #highcut = st.number_input("Enter High Cutoff Frequency (Hz)", min_value=0.1, max_value=450.0, value=45.0)
+
     
         # 전처리 선택 (복수 선택 가능)
         preprocessing = st.multiselect(
