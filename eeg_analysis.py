@@ -77,7 +77,6 @@ def main():
             'PCA'
         ))
 
-    
         # 주파수 대역 선택 (여러 개 선택 가능)
         frequency_bands = {
             'Delta (0.5-4 Hz)': (0.5, 4),
@@ -91,23 +90,10 @@ def main():
         # 전처리 선택 (복수 선택 가능)
         preprocessing = st.multiselect(
             '적용할 전처리 방법을 선택하세요',
-            ['None', 'Wavelet Transform', 'Fourier Transform', 'Butterworth Filter'],
-            default=['Butterworth Filter']
+            ['Wavelet Transform', 'Fourier Transform']
         )
-    
+
         def apply_preprocessing(data, electrode_key):
-            # 전처리 단계별로 신호 처리
-            filtered_signals = []
-            if 'Butterworth Filter' in preprocessing and selected_bands:
-                for band in selected_bands:
-                    lowcut, highcut = frequency_bands[band]
-                    filtered_signal = butter_bandpass_filter(data, lowcut, highcut, fs)
-                    st.write(f'{electrode_key}: {lowcut}-{highcut} Hz {band} 버터워스 필터링 적용됨.')
-                    filtered_signals.append(filtered_signal)
-    
-                # 여러 주파수 대역의 결과를 합하여 반환
-                data = np.sum(filtered_signals, axis=0)
-            
             if 'Wavelet Transform' in preprocessing:
                 data = wavelet_transform(data)
                 st.write(f'{electrode_key}: 이산 웨이블릿 변환 적용됨.')
@@ -116,8 +102,22 @@ def main():
                 data = fourier_transform(data)
                 st.write(f'{electrode_key}: 푸리에 변환 적용됨.')
             
-    
             return data
+
+        filter_first = st.radio("전처리 순서를 선택하세요", ['주파수 대역 필터링 → 전처리', '전처리 → 주파수 대역 필터링'])
+        
+        if filter_first == '주파수 대역 필터링 → 전처리':
+            if selected_bands:
+                for band in selected_bands:
+                    lowcut, highcut = frequency_bands[band]
+                    data = butter_bandpass_filter(data, lowcut, highcut, fs)
+            processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
+        else:
+            processed_data, results = apply_preprocessing(data, fs, selected_bands, preprocessing, frequency_bands)
+            if selected_bands:
+                for band in selected_bands:
+                    lowcut, highcut = frequency_bands[band]
+                    processed_data = butter_bandpass_filter(processed_data, lowcut, highcut, fs)
 
         num_ranges = st.number_input("선택할 구간의 개수를 입력하세요", min_value=0, max_value=100, value=1)
         time_ranges = []
