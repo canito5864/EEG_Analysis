@@ -38,7 +38,7 @@ def main():
     
     def plot_topomap(data, pos, title='EEG Topomap', cmap=selected_cmap):
         fig, ax = plt.subplots()
-        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap)
+        mne.viz.plot_topomap(data, pos[:, :2], axes=ax, show=False, contours=0, cmap=selected_cmap)
         ax.set_title(title)
         st.pyplot(fig)
 
