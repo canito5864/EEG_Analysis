@@ -172,6 +172,21 @@ def main():
 
             if fft_results:
                 freqs, magnitude = fft_results
+                band_powers = {}
+                for band_name, (low, high) in frequency_bands.items():
+                    # 주파수 범위 내 값 필터링
+                    band_indices = np.where((freqs >= low) & (freqs <= high))
+                    band_power = np.sum(magnitude[band_indices] ** 2)  # 에너지 계산
+                    band_powers[band_name] = band_power
+            
+                # 막대 그래프 시각화
+                st.subheader('주파수 대역별 신호 에너지')
+                fig, ax = plt.subplots(figsize=(10, 4))
+                ax.bar(band_powers.keys(), band_powers.values(), color='gray')
+                ax.set_ylabel('Band Power')
+                ax.set_title('Frequency Band Power Distribution')
+                st.pyplot(fig)
+                
                 st.subheader("Fourier Transform")
                 fig, ax = plt.subplots(figsize=(10, 4))
                 ax.plot(freqs, magnitude, label="FFT Magnitude")
