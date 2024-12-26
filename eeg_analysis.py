@@ -385,7 +385,7 @@ def main():
         
             processed_eeg = pd.DataFrame()
             for col in raw_eeg.columns:
-                processed_eeg[col] = apply_preprocessing(raw_eeg[col].values, col)
+                processed_eeg[col] = apply_processing(raw_eeg[col].values, col)
         
             selected_electrodes = st.multiselect(
                 'PCA를 적용할 전극을 선택하세요:',
