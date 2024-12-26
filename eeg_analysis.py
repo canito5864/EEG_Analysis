@@ -164,11 +164,11 @@ def main():
                 
             for start_time, end_time in time_ranges:
                 ax.axvspan(start_time, end_time, color='lightgray', alpha=0.3)
-                ax.set_xlabel('Time (s)')
-                ax.set_ylabel('Amplitude')
-                ax.legend()
-                plt.figure(figsize=(100,10))
-                st.pyplot(fig)
+            ax.set_xlabel('Time (s)')
+            ax.set_ylabel('Amplitude')
+            ax.legend()
+            plt.figure(figsize=(100,10))
+            st.pyplot(fig)
 
             if fft_results:
                 freqs, magnitude = fft_results
