@@ -192,6 +192,22 @@ def main():
                 ax.legend()
                 st.pyplot(fig)
 
+                # 구간별 푸리에 변환
+                segment_signal = processed_data[start_idx:end_idx]
+                segment_time = time[start_idx:end_idx]
+                
+                if len(segment_signal) > 0:
+                    segment_fft_results = fourier_transform(segment_signal, fs)
+                    if segment_fft_results:
+                        freqs, magnitude = segment_fft_results
+                        st.subheader(f'구간 {idx + 1}: Fourier Transform ({start_time}초 - {end_time}초)')
+                        fig, ax = plt.subplots(figsize=(10, 4))
+                        ax.plot(freqs, magnitude, label="FFT Magnitude")
+                        ax.set_xlabel("Frequency (Hz)")
+                        ax.set_ylabel("Magnitude")
+                        ax.legend()
+                        st.pyplot(fig)
+
         elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
     
@@ -241,6 +257,26 @@ def main():
                 ax.set_ylabel('Amplitude')
                 ax.legend()
                 st.pyplot(fig)
+
+                # 구간별 푸리에 변환
+                segment_signal1 = processed_data1[start_idx:end_idx]
+                segment_signal2 = processed_data2[start_idx:end_idx]
+                segment_time = time[start_idx:end_idx]
+                
+                if len(segment_signal1) > 0 and len(segment_signal2) > 0 :
+                    segment_fft_results1 = fourier_transform(segment_signal1, fs)
+                    segment_fft_results2 = fourier_transform(segment_signal2, fs)
+                    if segment_fft_results1 and segment_fft_results2:
+                        freqs1, magnitude1 = segment_fft_results1
+                        freqs2, magnitude2 = segment_fft_results2
+                        st.subheader(f'구간 {idx + 1}: Fourier Transform ({start_time}초 - {end_time}초)')
+                        fig, ax = plt.subplots(figsize=(10, 4))
+                        ax.plot(freqs1, magnitude1, label="FFT Magnitude1")
+                        ax.plot(freqs2, magnitude2, label="FFT Magnitude2")
+                        ax.set_xlabel("Frequency (Hz)")
+                        ax.set_ylabel("Magnitude")
+                        ax.legend()
+                        st.pyplot(fig)
     
             difference = calculate_difference(processed_data1, processed_data2)
     
