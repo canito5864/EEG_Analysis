@@ -207,36 +207,37 @@ def main():
                 ax.legend()
                 st.pyplot(fig)
 
-                # 구간별 푸리에 변환
-                segment_signal = processed_data[start_idx:end_idx]
-                segment_time = time[start_idx:end_idx]
-                
-                if len(segment_signal) > 0:
-                    segment_fft_results = fourier_transform(segment_signal, fs)
-                    if segment_fft_results:
-                        freqs, magnitude = segment_fft_results
-                        band_powers = {}
-                        for band_name, (low, high) in frequency_bands.items():
-                            # 주파수 범위 내 값 필터링
-                            band_indices = np.where((freqs >= low) & (freqs <= high))
-                            band_power = np.sum(magnitude[band_indices] ** 2)  # 에너지 계산
-                            band_powers[band_name] = band_power
+                if fft_results:
+                    # 구간별 푸리에 변환
+                    segment_signal = processed_data[start_idx:end_idx]
+                    segment_time = time[start_idx:end_idx]
                     
-                        # 막대 그래프 시각화
-                        st.subheader('주파수 대역별 신호 에너지')
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        ax.bar(band_powers.keys(), band_powers.values(), color='gray')
-                        ax.set_ylabel('Band Power')
-                        ax.set_title('Frequency Band Power Distribution')
-                        st.pyplot(fig)
+                    if len(segment_signal) > 0:
+                        segment_fft_results = fourier_transform(segment_signal, fs)
+                        if segment_fft_results:
+                            freqs, magnitude = segment_fft_results
+                            band_powers = {}
+                            for band_name, (low, high) in frequency_bands.items():
+                                # 주파수 범위 내 값 필터링
+                                band_indices = np.where((freqs >= low) & (freqs <= high))
+                                band_power = np.sum(magnitude[band_indices] ** 2)  # 에너지 계산
+                                band_powers[band_name] = band_power
                         
-                        st.subheader(f'구간 {idx + 1}: Fourier Transform ({start_time}초 - {end_time}초)')
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        ax.plot(freqs, magnitude, label="FFT Magnitude")
-                        ax.set_xlabel("Frequency (Hz)")
-                        ax.set_ylabel("Magnitude")
-                        ax.legend()
-                        st.pyplot(fig)
+                            # 막대 그래프 시각화
+                            st.subheader('주파수 대역별 신호 에너지')
+                            fig, ax = plt.subplots(figsize=(10, 4))
+                            ax.bar(band_powers.keys(), band_powers.values(), color='gray')
+                            ax.set_ylabel('Band Power')
+                            ax.set_title('Frequency Band Power Distribution')
+                            st.pyplot(fig)
+                            
+                            st.subheader(f'구간 {idx + 1}: Fourier Transform ({start_time}초 - {end_time}초)')
+                            fig, ax = plt.subplots(figsize=(10, 4))
+                            ax.plot(freqs, magnitude, label="FFT Magnitude")
+                            ax.set_xlabel("Frequency (Hz)")
+                            ax.set_ylabel("Magnitude")
+                            ax.legend()
+                            st.pyplot(fig)
 
         elif analysis_type == 'Electrode Comparison':
             st.subheader('전극 간 비교 분석')
