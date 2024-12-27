@@ -105,7 +105,7 @@ def main():
     
         analysis_type = st.selectbox('분석할 방법을 선택하세요', (
             'Single Electrode',
-            'Electrode Comparison',
+            'Comparison',
             'Topomap Visualization',
             'PCA'
         ))
@@ -239,114 +239,91 @@ def main():
                             ax.legend()
                             st.pyplot(fig)
 
-        elif analysis_type == 'Electrode Comparison':
-            st.subheader('전극 간 비교 분석')
+        elif analysis_type == 'Comparison':
+            st.subheader('비교 분석')
         
-            # 두 전극 선택
-            electrode1 = st.selectbox('첫 번째 전극을 선택하세요', raw_eeg.columns, index=0)
-            electrode2 = st.selectbox('두 번째 전극을 선택하세요', raw_eeg.columns, index=1)
+            # 비교 모드 선택
+            comparison_mode = st.selectbox('비교할 유형을 선택하세요', ['Electrode Comparison', 'Frequency Band Comparison'])
         
-            # 데이터 로드
-            data1 = raw_eeg[electrode1]
-            data2 = raw_eeg[electrode2]
+            if comparison_mode == 'Electrode Comparison':
+                st.subheader('전극 간 비교 분석')
         
-            # 신호 처리
-            processed_data1, _ = apply_processing(data1, fs, preprocessing, selected_bands, frequency_bands, filter_first)
-            processed_data2, _ = apply_processing(data2, fs, preprocessing, selected_bands, frequency_bands, filter_first)
+                # 두 전극 선택
+                electrode1 = st.selectbox('첫 번째 전극을 선택하세요', raw_eeg.columns, index=0)
+                electrode2 = st.selectbox('두 번째 전극을 선택하세요', raw_eeg.columns, index=1)
         
-            # 신호 시각화 함수
-            def plot_signal_comparison(time, signal1, signal2, label1, label2, title, start_end=None):
+                # 데이터 로드
+                data1 = raw_eeg[electrode1]
+                data2 = raw_eeg[electrode2]
+        
+                # 신호 처리
+                processed_data1, _ = apply_processing(data1, fs, preprocessing, selected_bands, frequency_bands, filter_first)
+                processed_data2, _ = apply_processing(data2, fs, preprocessing, selected_bands, frequency_bands, filter_first)
+        
+                # 시각화
+                st.subheader(f'{electrode1}과 {electrode2}의 신호 비교')
                 fig, ax = plt.subplots()
-                ax.plot(time, signal1, label=label1, linewidth=0.5)
-                ax.plot(time, signal2, label=label2, linewidth=0.5)
-                if start_end:
-                    for start, end in start_end:
-                        ax.axvspan(start, end, color='lightgray', alpha=0.3)
+                ax.plot(time[:len(processed_data1)], processed_data1[:len(time)], label=f'{electrode1} - 필터링된 신호', linewidth=0.5)
+                ax.plot(time[:len(processed_data2)], processed_data2[:len(time)], label=f'{electrode2} - 필터링된 신호', linewidth=0.5)
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
-                ax.set_title(title)
                 st.pyplot(fig)
         
-            # 신호 비교 시각화
-            st.subheader(f'{electrode1}과 {electrode2}의 전처리된 신호 비교')
-            plot_signal_comparison(
-                time[:len(processed_data1)], 
-                processed_data1[:len(time)], 
-                processed_data2[:len(time)], 
-                f'{electrode1} - 필터링된 신호', 
-                f'{electrode2} - 필터링된 신호', 
-                f'{electrode1}과 {electrode2}의 비교',
-                start_end=time_ranges
-            )
+                # 신호 차이 계산
+                difference = calculate_difference(processed_data1, processed_data2)
+                st.subheader(f'{electrode1}과 {electrode2}의 신호 차이')
+                fig, ax = plt.subplots()
+                ax.plot(time[:len(difference)], difference[:len(time)], label='Difference', linewidth=0.5)
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude Difference')
+                ax.legend()
+                st.pyplot(fig)
         
-            # 구간별 처리 함수
-            def process_segments(time_ranges, signal1, signal2, fs, sampling_interval):
-                for idx, (start_time, end_time) in enumerate(time_ranges):
-                    start_idx = int(start_time / sampling_interval)
-                    end_idx = int(end_time / sampling_interval)
+            elif comparison_mode == 'Frequency Band Comparison':
+                st.subheader('주파수 대역 비교')
         
-                    segment_time = time[start_idx:end_idx]
-                    segment_signal1 = signal1[start_idx:end_idx]
-                    segment_signal2 = signal2[start_idx:end_idx]
+                # 전극 선택
+                electrode = st.selectbox('분석할 전극을 선택하세요', raw_eeg.columns)
         
-                    # 시각화
-                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초')
-                    plot_signal_comparison(
-                        segment_time, 
-                        segment_signal1, 
-                        segment_signal2, 
-                        f'{electrode1} - 필터링된 신호', 
-                        f'{electrode2} - 필터링된 신호', 
-                        f'구간 {idx + 1}: 신호 비교'
-                    )
+                # 선택된 전극 데이터
+                raw_data = raw_eeg[electrode]
         
-                    # 구간별 푸리에 변환 및 시각화
-                    if len(segment_signal1) > 0 and len(segment_signal2) > 0:
-                        freqs1, magnitude1 = fourier_transform(segment_signal1, fs)
-                        freqs2, magnitude2 = fourier_transform(segment_signal2, fs)
+                # 주파수 대역 정의
+                frequency_bands = {
+                    'Delta (0.5-4 Hz)': (0.5, 4),
+                    'Theta (4-8 Hz)': (4, 8),
+                    'Alpha (8-13 Hz)': (8, 13),
+                    'Beta (13-30 Hz)': (13, 30),
+                    'Gamma (30-45 Hz)': (30, 45)
+                }
         
-                        st.subheader(f'구간 {idx + 1}: Fourier Transform ({start_time}초 - {end_time}초)')
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        ax.plot(freqs1, magnitude1, label=f'{electrode1} - FFT Magnitude')
-                        ax.plot(freqs2, magnitude2, label=f'{electrode2} - FFT Magnitude')
-                        ax.set_xlabel("Frequency (Hz)")
-                        ax.set_ylabel("Magnitude")
-                        ax.legend()
-                        st.pyplot(fig)
+                band_signals = {}
+                band_powers = {}
         
-            # 구간별 처리 호출
-            process_segments(time_ranges, processed_data1, processed_data2, fs, sampling_interval)
+                for band_name, (low, high) in frequency_bands.items():
+                    filtered_signal = butter_bandpass_filter(raw_data, low, high, fs)
+                    band_signals[band_name] = filtered_signal
+                    band_power = np.sum(filtered_signal ** 2)  # 에너지 계산
+                    band_powers[band_name] = band_power
         
-            # 신호 차이 계산 및 시각화
-            difference = calculate_difference(processed_data1, processed_data2)
+                # 대역별 신호 시각화
+                st.subheader('대역별 필터링된 신호')
+                fig, ax = plt.subplots(figsize=(12, 6))
+                for band_name, signal in band_signals.items():
+                    ax.plot(time[:len(signal)], signal[:len(time)], label=band_name)
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                ax.legend()
+                st.pyplot(fig)
         
-            st.subheader(f'{electrode1}과 {electrode2}의 EEG 신호 차이')
-            plot_signal_comparison(
-                time[:len(difference)], 
-                difference[:len(time)], 
-                None, 
-                'Difference', 
-                None, 
-                f'{electrode1}과 {electrode2}의 신호 차이',
-                start_end=time_ranges
-            )
-        
-            # 구간별 신호 차이 시각화
-            def plot_segment_difference(time_ranges, difference, time, sampling_interval):
-                for idx, (start_time, end_time) in enumerate(time_ranges):
-                    start_idx = int(start_time / sampling_interval)
-                    end_idx = int(end_time / sampling_interval)
-        
-                    st.subheader(f'구간 {idx + 1}: {start_time}초 - {end_time}초 (Difference)')
-                    fig, ax = plt.subplots()
-                    ax.plot(time[start_idx:end_idx], difference[start_idx:end_idx], label='Difference', linewidth=0.5)
-                    ax.set_xlabel('Time (s)')
-                    ax.set_ylabel('Amplitude')
-                    ax.legend()
-                    st.pyplot(fig)
-        
-            plot_segment_difference(time_ranges, difference, time, sampling_interval)
+                # 대역별 에너지 비교
+                st.subheader('주파수 대역별 에너지 비교')
+                fig, ax = plt.subplots(figsize=(10, 4))
+                ax.bar(band_powers.keys(), band_powers.values(), color='gray')
+                ax.set_ylabel('Band Power')
+                ax.set_title('Frequency Band Power Distribution')
+                st.pyplot(fig)
 
     
         elif analysis_type == 'Topomap Visualization':
