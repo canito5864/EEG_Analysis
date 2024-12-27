@@ -249,6 +249,9 @@ def main():
         
             if comparison_mode == 'Electrode Comparison':
                 st.subheader('전극 간 비교 분석')
+
+                #주파수 선택
+                selected_bands = st.multiselect('분석할 주파수 대역을 선택하세요', list(frequency_bands.keys()))
         
                 # 두 전극 선택
                 electrode1 = st.selectbox('첫 번째 전극을 선택하세요', raw_eeg.columns, index=0)
