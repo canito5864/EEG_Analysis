@@ -117,7 +117,9 @@ def main():
             'Beta (13-30 Hz)': (13, 30),
             'Gamma (30-45 Hz)': (30, 45)
         }
-        selected_bands = st.multiselect('분석할 주파수 대역을 선택하세요', list(frequency_bands.keys()))
+
+        if not(analysis_type == 'Comparison'):
+            selected_bands = st.multiselect('분석할 주파수 대역을 선택하세요', list(frequency_bands.keys()))
 
         preprocessing = st.multiselect(
             '적용할 전처리 방법을 선택하세요',
@@ -281,15 +283,13 @@ def main():
                 st.pyplot(fig)
         
             elif comparison_mode == 'Frequency Band Comparison':
-                st.subheader('주파수 대역 비교')
+                st.subheader('주파수 대역 간 비교')
         
                 # 전극 선택
                 electrode = st.selectbox('분석할 전극을 선택하세요', raw_eeg.columns)
         
-                # 선택된 전극 데이터
-                raw_data = raw_eeg[electrode]
-        
-                # 주파수 대역 정의
+                # 주파수 대역 선택
+                st.subheader('비교할 주파수 대역을 선택하세요')
                 frequency_bands = {
                     'Delta (0.5-4 Hz)': (0.5, 4),
                     'Theta (4-8 Hz)': (4, 8),
@@ -298,32 +298,41 @@ def main():
                     'Gamma (30-45 Hz)': (30, 45)
                 }
         
-                band_signals = {}
-                band_powers = {}
+                band1 = st.selectbox('첫 번째 주파수 대역을 선택하세요', list(frequency_bands.keys()))
+                band2 = st.selectbox('두 번째 주파수 대역을 선택하세요', list(frequency_bands.keys()))
         
-                for band_name, (low, high) in frequency_bands.items():
-                    filtered_signal = butter_bandpass_filter(raw_data, low, high, fs)
-                    band_signals[band_name] = filtered_signal
-                    band_power = np.sum(filtered_signal ** 2)  # 에너지 계산
-                    band_powers[band_name] = band_power
+                # 선택된 대역의 주파수 범위
+                low1, high1 = frequency_bands[band1]
+                low2, high2 = frequency_bands[band2]
         
-                # 대역별 신호 시각화
-                st.subheader('대역별 필터링된 신호')
+                # 선택된 전극 데이터
+                raw_data = raw_eeg[electrode]
+        
+                # 대역별 필터링
+                filtered_signal1 = butter_bandpass_filter(raw_data, low1, high1, fs)
+                filtered_signal2 = butter_bandpass_filter(raw_data, low2, high2, fs)
+        
+                # 신호 비교 시각화
+                st.subheader(f'{band1} 대역과 {band2} 대역의 필터링된 신호 비교')
                 fig, ax = plt.subplots(figsize=(12, 6))
-                for band_name, signal in band_signals.items():
-                    ax.plot(time[:len(signal)], signal[:len(time)], label=band_name)
+                ax.plot(time[:len(filtered_signal1)], filtered_signal1[:len(time)], label=f'{band1} 대역', linewidth=0.5)
+                ax.plot(time[:len(filtered_signal2)], filtered_signal2[:len(time)], label=f'{band2} 대역', linewidth=0.5)
                 ax.set_xlabel('Time (s)')
                 ax.set_ylabel('Amplitude')
                 ax.legend()
                 st.pyplot(fig)
         
-                # 대역별 에너지 비교
-                st.subheader('주파수 대역별 에너지 비교')
+                # 대역별 에너지 계산
+                band_power1 = np.sum(filtered_signal1 ** 2)
+                band_power2 = np.sum(filtered_signal2 ** 2)
+        
+                st.subheader('선택된 주파수 대역 에너지 비교')
                 fig, ax = plt.subplots(figsize=(10, 4))
-                ax.bar(band_powers.keys(), band_powers.values(), color='gray')
+                ax.bar([band1, band2], [band_power1, band_power2], color=['blue', 'orange'])
                 ax.set_ylabel('Band Power')
-                ax.set_title('Frequency Band Power Distribution')
+                ax.set_title('Frequency Band Power Comparison')
                 st.pyplot(fig)
+
 
     
         elif analysis_type == 'Topomap Visualization':
