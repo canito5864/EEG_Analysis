@@ -324,17 +324,6 @@ def main():
                 ax.set_ylabel('Amplitude')
                 ax.legend()
                 st.pyplot(fig)
-        
-                # 대역별 에너지 계산
-                band_power1 = np.sum(filtered_signal1 ** 2)
-                band_power2 = np.sum(filtered_signal2 ** 2)
-        
-                st.subheader('선택된 주파수 대역 에너지 비교')
-                fig, ax = plt.subplots(figsize=(10, 4))
-                ax.bar([band1, band2], [band_power1, band_power2], color=['blue', 'orange'])
-                ax.set_ylabel('Band Power')
-                ax.set_title('Frequency Band Power Comparison')
-                st.pyplot(fig)
 
 
     
